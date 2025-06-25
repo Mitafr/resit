@@ -1,0 +1,48 @@
+[package]
+name = "pesit_client"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "pesit_client"
+path = "src/lib.rs"
+crate-type = ["lib"]
+description = "A client library for the PESIT protocol"
+license = "MIT OR Apache-2.0"
+
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+debug = 0
+strip = true
+lto = true
+opt-level = "z"
+codegen-units = 1
+panic = "unwind"
+
+
+[dependencies]
+futures = "0.3"
+bytes = "1"
+nom = "8"
+thiserror = "2"
+rand = "0.9"
+log = "0.4"
+
+# Tokio
+tokio = { version = "1", features = ["full"], optional = true }
+tokio-util = { version = "0.7", features = ["codec"], optional = true }
+tokio-stream = { version = "0.1", optional = true }
+
+# BB8
+bb8 = { version = "0.9", optional = true }
+
+[dev-dependencies]
+env_logger = "0.11"
+
+[features]
+default = ["runtime-tokio"]
+runtime-tokio = ["tokio", "tokio-util", "tokio-stream"]
+pool-bb8 = ["bb8"]
