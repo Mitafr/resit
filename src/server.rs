@@ -1,4 +1,4 @@
-use std::{future::Future, io::Error, sync::Arc};
+use std::{future::Future, sync::Arc};
 
 use futures::SinkExt;
 use tokio::{
@@ -17,7 +17,7 @@ use crate::{
     state::{ServerState, State},
 };
 
-pub trait FrameHandler<S: State> {
+pub(crate) trait FrameHandler<S: State> {
     fn handle(
         &self,
         conn: &mut PesitFramedStream,
@@ -25,6 +25,7 @@ pub trait FrameHandler<S: State> {
     ) -> impl Future<Output = Result<S, PesitError>> + Send;
 }
 
+/// PESIT server struct for handling client connections.
 #[derive(Debug)]
 pub struct PesitServer {
     port: u16,
@@ -33,15 +34,22 @@ pub struct PesitServer {
 }
 
 impl PesitServer {
-    pub async fn new(port: u16) -> Result<Self, Error> {
-        let addr = format!("127.0.0.1:{}", port);
+    /// Creates a new PESIT server.
+    ///
+    /// # Arguments
+    /// * `port` - The port number to bind the server to.
+    ///
+    /// # Errors
+    /// This function will return an error if the server fails to bind to the specified port.
+    pub async fn new(port: u16) -> Result<Self, PesitError> {
+        let addr = format!("127.0.0.1:{port}");
 
         let listener = match TcpListener::bind(&addr).await {
             Ok(tcp_listener) => {
                 log::info!("TCP listener started on port {port}");
                 tcp_listener
             }
-            Err(e) => panic!("Could not bind the TCP listener to {}. Err: {}", &addr, e),
+            Err(e) => return Err(e.into()),
         };
 
         Ok(Self {
@@ -51,12 +59,17 @@ impl PesitServer {
         })
     }
 
-    pub async fn run(&mut self) -> Result<(), Error> {
+    /// Runs the server, accepting incoming connections.
+    ///
+    /// # Errors
+    /// This function will return an error if the server fails to accept a connection.
+    /// Or the frame processing fails.
+    pub async fn run(&mut self) -> Result<(), PesitError> {
         loop {
             let sock = match self.accept_conn().await {
                 Ok(stream) => stream,
                 Err(e) => {
-                    panic!("Error accepting connection on port {}: {}", self.port, e);
+                    return Err(e);
                 }
             };
             log::info!("Accepted connection from {}", sock.peer_addr()?);
@@ -72,10 +85,14 @@ impl PesitServer {
         }
     }
 
-    async fn accept_conn(&mut self) -> Result<TcpStream, Error> {
+    /// Accepts a new incoming connection.
+    ///
+    /// # Errors
+    /// Returns an error if the connection could not be accepted.
+    async fn accept_conn(&mut self) -> Result<TcpStream, PesitError> {
         match self.listener.accept().await {
             Ok((sock, _)) => Ok(sock),
-            Err(e) => Err(e),
+            Err(e) => Err(PesitError::from(e)),
         }
     }
 }
@@ -89,7 +106,7 @@ impl PesitServerHandler {
         Self { conn }
     }
 
-    pub async fn handle(&mut self, mut state: Arc<Mutex<ServerState>>) -> Result<(), PesitError> {
+    pub async fn handle(&mut self, state: Arc<Mutex<ServerState>>) -> Result<(), PesitError> {
         while let Some(frame) = self.conn.next().await {
             match frame {
                 Ok(frame) => match frame.header.kind {

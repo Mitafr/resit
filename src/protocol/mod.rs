@@ -1,4 +1,4 @@
-pub mod codec;
-pub mod frame;
-pub mod parser;
+pub(crate) mod codec;
+pub(crate) mod frame;
+pub(crate) mod parser;
 pub(crate) mod pi;

@@ -5,6 +5,7 @@ use crate::{connection::connect, error::PesitError, protocol::frame::Frame, stat
 use futures::SinkExt;
 use tokio_stream::StreamExt;
 
+#[derive(Debug)]
 pub struct PesitClient {
     pub stream: PesitFramedStream,
     pub state: ClientState,

@@ -48,7 +48,7 @@ impl Pi for Pi71 {
                 nom::bits::complete::take::<_, u8, _, nom::error::Error<(&[u8], usize)>>(1usize)(
                     data,
                 )
-                .map(|(data, proc_type)| match proc_type {
+                .map(|(_data, proc_type)| match proc_type {
                     0 => Some(AuthProcedure::CertExchange),
                     1 => Some(AuthProcedure::ThreeWayAuth),
                     2 => Some(AuthProcedure::ThreeWayAuthDesOnly),

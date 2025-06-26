@@ -16,6 +16,7 @@ impl FrameHandler<ServerState> for FConnectHandler {
         conn: &mut PesitFramedStream,
         _frame: Frame,
     ) -> Result<ServerState, PesitError> {
+        log::debug!("Handling FConnect frame");
         conn.send(Frame {
             header: FrameHeader {
                 kind: FrameType::FAConnect,

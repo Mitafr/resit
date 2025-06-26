@@ -7,7 +7,7 @@ use super::frame::Frame;
 use nom::IResult;
 
 #[derive(Debug, Default)]
-pub struct Parser {}
+pub(crate) struct Parser {}
 
 impl Parser {
     pub fn parse(self, input: &[u8]) -> Frame {

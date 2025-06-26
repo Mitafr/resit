@@ -3,7 +3,8 @@ use crate::{error::PesitError, protocol::parser::Parser};
 use bytes::{Buf, BufMut, BytesMut};
 use tokio_util::codec::{Decoder, Encoder};
 
-pub struct PesitCodec;
+#[derive(Debug)]
+pub(crate) struct PesitCodec;
 
 impl Decoder for PesitCodec {
     type Item = Frame;

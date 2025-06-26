@@ -1,10 +1,10 @@
-use crate::protocol::frame::types::FrameType;
+use crate::{error::PesitError, protocol::frame::types::FrameType};
 
 pub(crate) mod handler;
 pub(crate) mod types;
 
 #[derive(Debug, Default)]
-pub struct Frame {
+pub(crate) struct Frame {
     pub header: FrameHeader,
     pub payload: Vec<u8>,
     pub len: usize,
@@ -25,7 +25,7 @@ impl Frame {
         }
     }
 
-    pub fn from_bytes(input: &[u8]) -> Result<Self, ()> {
+    pub fn from_bytes(input: &[u8]) -> Result<Self, PesitError> {
         let header = FrameHeader::from_bytes(input)?;
         let payload_start = 3;
         let payload = input[payload_start..].to_vec();
@@ -39,7 +39,7 @@ impl Frame {
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
-pub struct FrameHeader {
+pub(crate) struct FrameHeader {
     pub kind: FrameType,
     pub length: u16,
     pub msg_type: u8,
@@ -48,12 +48,12 @@ pub struct FrameHeader {
 }
 
 impl FrameHeader {
-    pub fn from_bytes(input: &[u8]) -> Result<Self, ()> {
+    pub fn from_bytes(input: &[u8]) -> Result<Self, PesitError> {
         if input.len() < 6 {
-            return Err(());
+            return Err(PesitError::InvalidFrame);
         }
 
-        let kind = <[u8; 4]>::try_from(&input[3..=6]).map_err(|_| ())?;
+        let kind = <[u8; 4]>::try_from(&input[3..=6]).unwrap_or_default();
 
         Ok(Self {
             kind: FrameType::from(&kind),
