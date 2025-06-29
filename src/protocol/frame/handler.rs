@@ -7,7 +7,7 @@ use crate::{
     error::PesitError,
     protocol::{
         frame::{types::FrameType, Frame, FrameHeader},
-        pi::*,
+        pi::{Pi, Pi1, Pi3, Pi4, Pi5, Pi6, Pi7, Pi99},
     },
     server::FrameHandler,
     state::ServerState,
@@ -59,7 +59,7 @@ impl FrameHandler<ServerState> for FConnectHandler {
         })
         .await?;
         let payload = self.extract_payload(&frame)?;
-        log::info!("{:?}", payload);
+        log::info!("{payload:?}");
         *state = ServerState::Connected;
         Ok(())
     }
@@ -71,7 +71,7 @@ impl FrameHandler<ServerState> for FConnectHandler {
         let (raw_payload, pi4) = parse_pi::<Pi4>(raw_payload).unwrap_or_default();
         let (raw_payload, pi5) = parse_pi::<Pi5>(raw_payload).unwrap_or_default();
         let (raw_payload, pi6) = parse_pi::<Pi6>(raw_payload).unwrap_or_default();
-        let (raw_payload, pi7) = parse_pi::<Pi7>(raw_payload).unwrap_or_default();
+        let (_raw_payload, pi7) = parse_pi::<Pi7>(raw_payload).unwrap_or_default();
         Ok((pi1, pi3, pi4, Some(pi5), pi6, pi7, None))
     }
 }

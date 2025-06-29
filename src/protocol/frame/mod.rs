@@ -56,7 +56,7 @@ impl FrameHeader {
         let kind = <[u8; 4]>::try_from(&input[3..=6]).unwrap_or_default();
 
         Ok(Self {
-            kind: FrameType::from(&kind),
+            kind: FrameType::from(kind),
             msg_type: input[3],
             dest_id: input[4],
             oct6: input[5],

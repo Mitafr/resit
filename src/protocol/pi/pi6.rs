@@ -23,7 +23,7 @@ impl Pi for Pi6 {
             1 => Version::D,
             2 => Version::E,
             _ => {
-                warn!("Unknown Pi6 version: {}", version);
+                warn!("Unknown Pi6 version: {version}");
                 Version::default()
             }
         };

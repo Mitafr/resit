@@ -22,8 +22,8 @@ pub enum FrameType {
 }
 
 impl FrameType {
-    pub fn from_header(value: &[u8; 4]) -> Self {
-        log::debug!("Parsing frame type from header: {:x?}", value);
+    pub fn from_header(value: [u8; 4]) -> Self {
+        log::debug!("Parsing frame type from header: {value:x?}");
         match value {
             [0x40, 0x20, 0x00, _] => FrameType::FConnect,
             [0x40, 0x21, _, _] => FrameType::FAConnect,
@@ -48,11 +48,11 @@ impl FrameType {
 
     fn into_u8(self) -> u8 {
         match self {
-            FrameType::FConnect => 0x40,
-            FrameType::FAConnect => 0x40,
-            FrameType::FRConnect => 0x40,
-            FrameType::FRelease => 0x40,
-            FrameType::FRelconf => 0x40,
+            FrameType::FConnect
+            | FrameType::FAConnect
+            | FrameType::FRConnect
+            | FrameType::FRelease
+            | FrameType::FRelconf => 0x40,
             FrameType::FAbort => todo!(),
             FrameType::FCreate => todo!(),
             FrameType::FSelect => todo!(),
@@ -70,8 +70,8 @@ impl FrameType {
     }
 }
 
-impl From<&[u8; 4]> for FrameType {
-    fn from(value: &[u8; 4]) -> Self {
+impl From<[u8; 4]> for FrameType {
+    fn from(value: [u8; 4]) -> Self {
         FrameType::from_header(value)
     }
 }

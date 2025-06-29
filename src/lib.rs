@@ -21,16 +21,9 @@ pub(crate) mod client;
 pub(crate) mod connection;
 /// Error handling module for the PESIT protocol.
 pub mod error;
-#[cfg(feature = "pool-bb8")]
-pub mod pool;
 pub(crate) mod protocol;
 /// Server module for the PESIT protocol.
 pub mod server;
 pub(crate) mod state;
 
 pub use api::PesitSession;
-
-enum PesitMode {
-    Server,
-    Client,
-}
