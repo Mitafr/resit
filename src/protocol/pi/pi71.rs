@@ -15,7 +15,7 @@ enum AuthProcedure {
     ThreeWayAuthDesOnly,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Pi71 {
     auth: bool,
     auth_type: Option<AuthAlgo>,

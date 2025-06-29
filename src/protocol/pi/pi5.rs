@@ -1,4 +1,3 @@
-use nom::sequence::tuple;
 use nom::IResult;
 
 use crate::protocol::pi::Pi;

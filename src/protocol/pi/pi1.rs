@@ -1,4 +1,4 @@
-use nom::IResult;
+use nom::{bits::complete::take, IResult};
 
 use crate::protocol::pi::Pi;
 
@@ -7,12 +7,13 @@ pub struct Pi1(pub bool);
 
 impl Pi for Pi1 {
     fn parse(data: &[u8]) -> IResult<&[u8], Self> {
-        if let Ok(((data, _), crc)) =
-            nom::bits::complete::bool::<_, nom::error::Error<(&[u8], usize)>>((data, 1usize))
-        {
-            Ok((data, Pi1(crc)))
-        } else {
-            Ok((data, Pi1(false)))
+        log::info!("Parsing Pi1 from data: {:?}", data);
+        match take::<&[u8], u8, usize, (_, nom::error::ErrorKind)>(1usize)((data, 7)) {
+            Ok(((data, _), crc)) => Ok((data, Pi1(1u8 == crc))),
+            Err(e) => {
+                log::error!("Failed to parse Pi1: {}", e);
+                Ok((data, Pi1(false)))
+            }
         }
     }
 }

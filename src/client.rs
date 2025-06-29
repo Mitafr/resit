@@ -30,20 +30,15 @@ impl PesitClient {
                 oct6: rand::random::<u8>(),
                 length: 0,
             },
-            payload: vec![],
+            payload: vec![1],
             len: 0,
         })
         .await?;
-        if let Some(frame) = self.stream.next().await {
-            match frame {
-                Ok(frame) => {
-                    if frame.header.kind == FrameType::FAConnect {
-                        self.state = ClientState::Connected;
-                        log::info!("Connection established with server.");
-                        return Ok(());
-                    }
-                }
-                Err(e) => return Err(e),
+        if let Ok(frame) = self.receive_frame().await {
+            if frame.header.kind == FrameType::FAConnect {
+                self.state = ClientState::Connected;
+                log::info!("Connection established with server.");
+                return Ok(());
             }
         }
         Ok(())

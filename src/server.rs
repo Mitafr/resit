@@ -1,9 +1,8 @@
 use std::{future::Future, sync::Arc};
 
-use futures::SinkExt;
 use tokio::{
     net::{TcpListener, TcpStream},
-    sync::Mutex,
+    sync::{Mutex, MutexGuard},
 };
 use tokio_stream::StreamExt;
 
@@ -12,17 +11,26 @@ use crate::{
     error::PesitError,
     protocol::{
         codec::PesitCodec,
-        frame::{handler::FConnectHandler, types::FrameType, Frame},
+        frame::{
+            handler::{FConnectHandler, FReleaseHandler},
+            types::FrameType,
+            Frame,
+        },
     },
     state::{ServerState, State},
 };
 
 pub(crate) trait FrameHandler<S: State> {
+    type Payload;
+
     fn handle(
         &self,
         conn: &mut PesitFramedStream,
         frame: Frame,
-    ) -> impl Future<Output = Result<S, PesitError>> + Send;
+        state: MutexGuard<'_, S>,
+    ) -> impl Future<Output = Result<(), PesitError>> + Send;
+
+    fn extract_payload(&self, frame: &Frame) -> Self::Payload;
 }
 
 /// PESIT server struct for handling client connections.
@@ -79,7 +87,7 @@ impl PesitServer {
             tokio::spawn(async move {
                 let mut handler = PesitServerHandler::new(resp_command_frame);
                 if let Err(e) = handler.handle(s).await {
-                    log::error!("Failed to handle command: {}", e);
+                    log::error!("Failed to handle command: {e}");
                 }
             });
         }
@@ -107,27 +115,23 @@ impl PesitServerHandler {
     }
 
     pub async fn handle(&mut self, state: Arc<Mutex<ServerState>>) -> Result<(), PesitError> {
+        macro_rules! handle_frame {
+            ($frame:ident, $handler:ident) => {{
+                let lock = state.lock().await;
+                $handler {}.handle(&mut self.conn, $frame, lock).await?;
+            }};
+        }
         while let Some(frame) = self.conn.next().await {
             match frame {
                 Ok(frame) => match frame.header.kind {
-                    FrameType::FConnect => {
-                        let mut lock = state.lock().await;
-                        if *lock == ServerState::Connected {
-                            log::warn!("Received FConnect frame while already connected.");
-                        }
-                        *lock = FConnectHandler {}.handle(&mut self.conn, frame).await?;
-                    }
-                    FrameType::FRelease => {
-                        log::info!("Received FRelease frame, disconnecting.");
-                        self.conn.close().await?;
-                        *state.lock().await = ServerState::Disconnected;
-                    }
+                    FrameType::FConnect => handle_frame!(frame, FConnectHandler),
+                    FrameType::FRelease => handle_frame!(frame, FReleaseHandler),
                     _ => {
                         todo!("Handle other frame types here");
                     }
                 },
                 Err(e) => {
-                    log::error!("Error processing frame: {}", e);
+                    log::error!("Error processing frame: {e}");
                     return Err(e);
                 }
             }

@@ -1,10 +1,6 @@
-use crate::protocol::{
-    frame::{types::FrameType, FrameHeader},
-    pi::{pi71::Pi71, Pi},
-};
+use crate::protocol::frame::{types::FrameType, FrameHeader};
 
 use super::frame::Frame;
-use nom::IResult;
 
 #[derive(Debug, Default)]
 pub(crate) struct Parser {}
@@ -23,8 +19,4 @@ impl Parser {
             len: input.len(),
         }
     }
-}
-
-fn parse_pi<P: Pi>(input: &[u8]) -> IResult<&[u8], P> {
-    P::parse(input)
 }

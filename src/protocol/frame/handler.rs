@@ -1,22 +1,51 @@
 use futures::SinkExt;
+use nom::IResult;
+use tokio::sync::MutexGuard;
 
 use crate::{
     connection::PesitFramedStream,
     error::PesitError,
-    protocol::frame::{types::FrameType, Frame, FrameHeader},
+    protocol::{
+        frame::{types::FrameType, Frame, FrameHeader},
+        pi::*,
+    },
     server::FrameHandler,
     state::ServerState,
 };
 
-pub struct FConnectHandler {}
+fn parse_pi<P: Pi>(input: &[u8]) -> IResult<&[u8], P> {
+    P::parse(input)
+}
+
+pub(crate) struct FConnectHandler {}
+pub(crate) struct FReleaseHandler {}
 
 impl FrameHandler<ServerState> for FConnectHandler {
+    type Payload = Result<
+        (
+            Pi1,
+            Pi3,
+            Pi4,
+            Option<Pi5>,
+            Pi6,
+            Pi7,
+            //Pi22,
+            //Pi23,
+            Option<Pi99>,
+        ),
+        PesitError,
+    >;
+
     async fn handle(
         &self,
         conn: &mut PesitFramedStream,
-        _frame: Frame,
-    ) -> Result<ServerState, PesitError> {
+        frame: Frame,
+        mut state: MutexGuard<'_, ServerState>,
+    ) -> Result<(), PesitError> {
         log::debug!("Handling FConnect frame");
+        if *state == ServerState::Connected {
+            log::warn!("Received FConnect frame while already connected.");
+        }
         conn.send(Frame {
             header: FrameHeader {
                 kind: FrameType::FAConnect,
@@ -29,6 +58,41 @@ impl FrameHandler<ServerState> for FConnectHandler {
             len: 0,
         })
         .await?;
-        Ok(ServerState::Connected)
+        let payload = self.extract_payload(&frame)?;
+        log::info!("{:?}", payload);
+        *state = ServerState::Connected;
+        Ok(())
+    }
+
+    fn extract_payload(&self, frame: &Frame) -> Self::Payload {
+        let raw_payload = &frame.payload;
+        let (raw_payload, pi1) = parse_pi::<Pi1>(raw_payload).unwrap_or_default();
+        let (raw_payload, pi3) = parse_pi::<Pi3>(raw_payload).unwrap_or_default();
+        let (raw_payload, pi4) = parse_pi::<Pi4>(raw_payload).unwrap_or_default();
+        let (raw_payload, pi5) = parse_pi::<Pi5>(raw_payload).unwrap_or_default();
+        let (raw_payload, pi6) = parse_pi::<Pi6>(raw_payload).unwrap_or_default();
+        let (raw_payload, pi7) = parse_pi::<Pi7>(raw_payload).unwrap_or_default();
+        Ok((pi1, pi3, pi4, Some(pi5), pi6, pi7, None))
+    }
+}
+
+impl FrameHandler<ServerState> for FReleaseHandler {
+    type Payload = ();
+    async fn handle(
+        &self,
+        conn: &mut PesitFramedStream,
+        _frame: Frame,
+        mut state: MutexGuard<'_, ServerState>,
+    ) -> Result<(), PesitError> {
+        log::debug!("Handling FRelease frame");
+        conn.close().await?;
+        *state = ServerState::Disconnected;
+        log::info!("Client Disconnected.");
+
+        Ok(())
+    }
+
+    fn extract_payload(&self, _frame: &Frame) -> Self::Payload {
+        ()
     }
 }
