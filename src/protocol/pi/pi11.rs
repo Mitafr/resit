@@ -38,3 +38,45 @@ impl Pi for Pi11 {
         Ok((&data[2..], Pi11(bytes)))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_send() {
+        let data = 0xFFFFu16.to_be_bytes();
+        let input = &data[..];
+        let (rem, pi) = Pi11::parse(input).unwrap();
+        assert_eq!(rem.len(), 0);
+        assert_eq!(pi.0, data);
+        assert_eq!(pi.exchange_type(), ExchangeType::Send);
+    }
+
+    #[test]
+    fn test_parse_receive() {
+        let data = 0xFFFEu16.to_be_bytes();
+        let input = &data[..];
+        let (rem, pi) = Pi11::parse(input).unwrap();
+        assert_eq!(rem.len(), 0);
+        assert_eq!(pi.0, data);
+        assert_eq!(pi.exchange_type(), ExchangeType::Receive);
+    }
+
+    #[test]
+    fn test_parse_ack() {
+        let data = 0x1234u16.to_be_bytes();
+        let input = &data[..];
+        let (rem, pi) = Pi11::parse(input).unwrap();
+        assert_eq!(rem.len(), 0);
+        assert_eq!(pi.0, data);
+        assert_eq!(pi.exchange_type(), ExchangeType::Ack);
+    }
+
+    #[test]
+    fn test_parse_incomplete() {
+        let data = [0xFF];
+        let result = Pi11::parse(&data);
+        assert!(result.is_err());
+    }
+}

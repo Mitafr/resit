@@ -30,6 +30,9 @@ impl Pi for Pi12 {
     where
         Self: Sized,
     {
+        if data.len() < 14 {
+            return Err(nom::Err::Incomplete(nom::Needed::new(14)));
+        }
         let identifier = match data.first() {
             Some(0) => IdentifierType::MutuallyAggreed,
             Some(1) => IdentifierType::Standard,
@@ -49,7 +52,7 @@ impl Pi for Pi12 {
                 ))
             }
             IdentifierType::Standard => {
-                let reference_type = match data.get(2) {
+                let reference_type = match data.get(1) {
                     Some(0) => VersionRequestType::NamedReference,
                     Some(1) => VersionRequestType::LatestVersion,
                     Some(2) => VersionRequestType::MissingVersions,
@@ -69,5 +72,94 @@ impl Pi for Pi12 {
                 ))
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_mutually_aggreed() {
+        let mut data = vec![0, 0];
+        data.extend(1u8..=12u8);
+        let (rem, pi) = Pi12::parse(&data).unwrap();
+        assert_eq!(rem, &data[13..]);
+        assert_eq!(pi.identifier, IdentifierType::MutuallyAggreed);
+        assert_eq!(pi.reference_type, Some(VersionRequestType::NamedReference));
+        assert_eq!(
+            pi.file_reference,
+            Some([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+        );
+    }
+
+    #[test]
+    fn test_parse_standard_named_reference() {
+        let mut data = vec![1, 0];
+        data.extend(2u8..=7u8);
+        data.extend(8u8..=13u8);
+        let (rem, pi) = Pi12::parse(&data).unwrap();
+        assert_eq!(rem, &data[1..]);
+        assert_eq!(pi.identifier, IdentifierType::Standard);
+        assert_eq!(pi.reference_type, Some(VersionRequestType::NamedReference));
+        assert_eq!(
+            pi.file_reference,
+            Some([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+        );
+    }
+
+    #[test]
+    fn test_parse_standard_latest_version() {
+        let mut data = vec![1, 1];
+        data.extend(2u8..=7u8);
+        data.extend(8u8..=13u8);
+        let (rem, pi) = Pi12::parse(&data).unwrap();
+        assert_eq!(rem, &data[1..]);
+        assert_eq!(pi.identifier, IdentifierType::Standard);
+        assert_eq!(pi.reference_type, Some(VersionRequestType::LatestVersion));
+        assert_eq!(
+            pi.file_reference,
+            Some([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+        );
+    }
+
+    #[test]
+    fn test_parse_standard_missing_versions() {
+        let mut data = vec![1, 2];
+        data.extend(2u8..=7u8);
+        data.extend(8u8..=13u8);
+        let (rem, pi) = Pi12::parse(&data).unwrap();
+        assert_eq!(rem, &data[1..]);
+        assert_eq!(pi.identifier, IdentifierType::Standard);
+        assert_eq!(pi.reference_type, Some(VersionRequestType::MissingVersions));
+        assert_eq!(
+            pi.file_reference,
+            Some([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+        );
+    }
+
+    #[test]
+    fn test_parse_standard_all_versions() {
+        let mut data = vec![1, 3];
+        data.extend(2u8..=7u8);
+        data.extend(8u8..=13u8);
+        let (rem, pi) = Pi12::parse(&data).unwrap();
+        assert_eq!(rem, &data[1..]);
+        assert_eq!(pi.identifier, IdentifierType::Standard);
+        assert_eq!(pi.reference_type, Some(VersionRequestType::AllVersions));
+        assert_eq!(
+            pi.file_reference,
+            Some([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+        );
+    }
+
+    #[test]
+    fn test_parse_incomplete() {
+        let data = vec![0, 0, 1, 2, 3];
+        let result = Pi12::parse(&data);
+        assert!(
+            result.is_err(),
+            "Should not panic, but may return wrong result due to unchecked slice"
+        );
     }
 }

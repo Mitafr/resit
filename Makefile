@@ -1,4 +1,4 @@
-.PHONY: all build run test clean fmt lint example
+.PHONY: all build run test clean fmt lint example coverage
 
 CARGO ?= cargo
 RUST_LOG = "info"
@@ -22,6 +22,9 @@ lint:
 
 clean:
 	$(CARGO) clean
+
+coverage:
+	$(CARGO) llvm-cov nextest --lcov --output-path ./target/lcov.info
 
 example-%:
 	RUST_LOG=${RUST_LOG} $(CARGO) run --example $*
