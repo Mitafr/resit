@@ -14,7 +14,7 @@ impl Pi for Pi5 {
         Self: Sized,
     {
         let (data, password) = nom::bytes::complete::take(8usize)(data)?;
-        let (data, new_password) = if data.len() > 8 {
+        let (data, new_password) = if !data.is_empty() {
             let (data, new_password) = nom::bytes::complete::take(8usize)(data)?;
             (data, Some(new_password))
         } else {
@@ -28,5 +28,33 @@ impl Pi for Pi5 {
                 new_password: new_password.map(|np| np.try_into().unwrap_or_default()),
             },
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_pi5_parse() {
+        let data = "test1234".as_bytes();
+        let (remain, pi5) = Pi5::parse(&data).unwrap();
+        assert_eq!(pi5.password, *data);
+        assert!(remain.is_empty());
+    }
+
+    #[test]
+    fn test_pi5_parse_with_new_password() {
+        let data = "test1234new12345".as_bytes();
+        let (remain, pi5) = Pi5::parse(&data).unwrap();
+        assert_eq!(
+            pi5.password,
+            [b't', b'e', b's', b't', b'1', b'2', b'3', b'4']
+        );
+        assert_eq!(
+            pi5.new_password,
+            Some([b'n', b'e', b'w', b'1', b'2', b'3', b'4', b'5'])
+        );
+        assert!(remain.is_empty());
     }
 }

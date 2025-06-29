@@ -11,3 +11,17 @@ impl Pi for Pi4 {
         Ok((data, Pi4(bytes.try_into().unwrap())))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_pi4_parse() {
+        let mut data = vec![];
+        data.extend(0u8..=23u8);
+        let (remain, pi4) = Pi4::parse(&data).unwrap();
+        assert_eq!(pi4.0, *data);
+        assert!(remain.is_empty());
+    }
+}
