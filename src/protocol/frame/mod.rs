@@ -1,9 +1,11 @@
+use bon::Builder;
+
 use crate::{error::PesitError, protocol::frame::types::FrameType};
 
 pub(crate) mod handler;
 pub(crate) mod types;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, PartialEq, Builder)]
 pub(crate) struct Frame {
     pub header: FrameHeader,
     pub payload: Vec<u8>,
@@ -21,7 +23,7 @@ impl Frame {
                 oct6: 0,
             },
             payload: Vec::new(),
-            len: 10,
+            len: 0,
         }
     }
 
@@ -38,12 +40,15 @@ impl Frame {
     }
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Builder)]
 pub(crate) struct FrameHeader {
     pub kind: FrameType,
     pub length: u16,
+    #[builder(default)]
     pub msg_type: u8,
+    #[builder(default)]
     pub dest_id: u8,
+    #[builder(default)]
     pub oct6: u8,
 }
 

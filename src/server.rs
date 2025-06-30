@@ -45,6 +45,16 @@ impl PesitServer {
     ///
     /// # Errors
     /// This function will return an error if the server fails to bind to the specified port.
+    ///
+    /// # Example
+    /// ```rust
+    /// use resit::server::PesitServer;
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), resit::error::PesitError> {
+    ///    let mut server = PesitServer::new("127.0.0.1:8080").await?;
+    ///    Ok(())
+    /// }
+    /// ```
     pub async fn new<A: AsRef<str>>(addr: A) -> Result<Self, PesitError> {
         let listener = match TcpListener::bind(addr.as_ref()).await {
             Ok(tcp_listener) => {

@@ -30,6 +30,7 @@ nom = "8"
 thiserror = "2"
 rand = "0.9"
 log = "0.4"
+bon = { version = "3" }
 
 # Tokio
 tokio = { version = "1", features = ["full"], optional = true }

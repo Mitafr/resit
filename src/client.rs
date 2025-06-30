@@ -22,18 +22,20 @@ impl PesitClient {
     }
 
     pub async fn init_connection(&mut self) -> Result<(), PesitError> {
-        self.send_frame(Frame {
-            header: FrameHeader {
-                kind: FrameType::FConnect,
-                msg_type: 0x20,
-                dest_id: 0x0,
-                oct6: rand::random::<u8>(),
-                length: 0,
-            },
-            payload: vec![1],
-            len: 0,
-        })
-        .await?;
+        let frame = Frame::builder()
+            .header(
+                FrameHeader::builder()
+                    .kind(FrameType::FConnect)
+                    .msg_type(0x20)
+                    .dest_id(0x0)
+                    .oct6(rand::random::<u8>())
+                    .length(0)
+                    .build(),
+            )
+            .payload(vec![1])
+            .len(0)
+            .build();
+        self.send_frame(frame).await?;
         if let Ok(frame) = self.receive_frame().await {
             if frame.header.kind == FrameType::FAConnect {
                 self.state = ClientState::Connected;
@@ -51,23 +53,34 @@ impl PesitClient {
     }
 
     pub async fn receive_frame(&mut self) -> Result<Frame, PesitError> {
-        self.stream.next().await.ok_or(PesitError::Protocol)?
+        let frame = self.stream.next().await.ok_or(PesitError::Protocol)?;
+        log::debug!("Received frame: {frame:?}");
+        frame
     }
 
     pub async fn disconnect(&mut self) -> Result<(), PesitError> {
         log::info!("Disconnecting from server.");
-        self.send_frame(Frame {
-            header: FrameHeader {
-                kind: FrameType::FRelease,
-                msg_type: 0x23,
-                dest_id: 0x0,
-                oct6: rand::random::<u8>(),
-                length: 0,
-            },
-            payload: vec![],
-            len: 0,
-        })
-        .await?;
+        let frame = Frame::builder()
+            .header(
+                FrameHeader::builder()
+                    .kind(FrameType::FRelease)
+                    .msg_type(0x23)
+                    .dest_id(0x0)
+                    .oct6(rand::random::<u8>())
+                    .length(0)
+                    .build(),
+            )
+            .payload(vec![])
+            .len(10)
+            .build();
+        self.send_frame(frame).await?;
+        if let Ok(confirm_frame) = self.receive_frame().await {
+            if confirm_frame.header.kind == FrameType::FRelconf {
+                log::info!("Server confirmed disconnection.");
+            } else {
+                log::warn!("Received unexpected frame during disconnection: {confirm_frame:?}");
+            }
+        }
         self.state = ClientState::Disconnected;
         Ok(())
     }

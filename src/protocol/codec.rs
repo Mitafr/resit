@@ -16,7 +16,7 @@ impl Decoder for PesitCodec {
         }
 
         let parser = Parser::default();
-        let frame = parser.parse(&src[..]);
+        let frame = parser.parse(src);
         src.advance(frame.len);
         Ok(Some(frame))
     }

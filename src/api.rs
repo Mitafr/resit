@@ -16,6 +16,17 @@ impl PesitSession {
     ///
     /// # Errors
     /// Returns an error if the connection fails.
+    ///
+    /// # Example
+    /// ```rust
+    /// use resit::api::PesitSession;
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///    let mut session = PesitSession::connect("127.0.0.1:8080").await?;
+    ///    session.send_file("path/to/file.txt").await?;
+    ///    Ok(())
+    /// }
+    /// ```
     pub async fn connect<S: AsRef<str>>(addr: S) -> Result<Self, PesitError> {
         let client = PesitClient::connect(addr.as_ref()).await?;
         Ok(Self {
