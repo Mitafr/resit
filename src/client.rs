@@ -14,7 +14,7 @@ pub struct PesitClient {
 impl PesitClient {
     pub async fn connect(addr: &str) -> Result<Self, PesitError> {
         let stream = connect(addr).await?;
-        log::info!("Connected to server at {}", addr);
+        log::info!("Connected to server at {addr}");
         Ok(Self {
             stream,
             state: ClientState::Idle,
@@ -45,8 +45,9 @@ impl PesitClient {
     }
 
     pub async fn send_frame(&mut self, frame: Frame) -> Result<(), PesitError> {
-        log::debug!("Sending frame: {:?}", frame);
-        self.stream.send(frame).await.map_err(Into::into)
+        log::debug!("Sending frame: {frame:?}");
+        self.stream.send(frame).await?;
+        Ok(())
     }
 
     pub async fn receive_frame(&mut self) -> Result<Frame, PesitError> {

@@ -1,6 +1,5 @@
 use futures::SinkExt;
 use nom::IResult;
-use tokio::sync::MutexGuard;
 
 use crate::{
     connection::PesitFramedStream,
@@ -40,7 +39,7 @@ impl FrameHandler<ServerState> for FConnectHandler {
         &self,
         conn: &mut PesitFramedStream,
         frame: Frame,
-        mut state: MutexGuard<'_, ServerState>,
+        state: &mut ServerState,
     ) -> Result<(), PesitError> {
         log::debug!("Handling FConnect frame");
         if *state == ServerState::Connected {
@@ -82,7 +81,7 @@ impl FrameHandler<ServerState> for FReleaseHandler {
         &self,
         conn: &mut PesitFramedStream,
         _frame: Frame,
-        mut state: MutexGuard<'_, ServerState>,
+        state: &mut ServerState,
     ) -> Result<(), PesitError> {
         log::debug!("Handling FRelease frame");
         conn.close().await?;

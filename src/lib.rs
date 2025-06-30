@@ -6,8 +6,8 @@
 //! Use it at your own risk. I do not guarantee its correctness or security.
 //! Feel free to contribute to its development.
 //!
-//! server module expose the PesitServer struct, which is the main entry point for the server.
-//! client module expose the PesitClient struct, which is the main entry point for the client.
+//! server module expose the `PesitServer` struct, which is the main entry point for the server.
+//! client module expose the `PesitClient` struct, which is the main entry point for the client.
 #![forbid(unsafe_code)]
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]

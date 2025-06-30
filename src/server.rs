@@ -1,9 +1,6 @@
-use std::{future::Future, sync::Arc};
+use std::future::Future;
 
-use tokio::{
-    net::{TcpListener, TcpStream},
-    sync::{Mutex, MutexGuard},
-};
+use tokio::net::{TcpListener, TcpStream};
 use tokio_stream::StreamExt;
 
 use crate::{
@@ -27,7 +24,7 @@ pub(crate) trait FrameHandler<S: State> {
         &self,
         conn: &mut PesitFramedStream,
         frame: Frame,
-        state: MutexGuard<'_, S>,
+        state: &mut S,
     ) -> impl Future<Output = Result<(), PesitError>> + Send;
 
     fn extract_payload(&self, frame: &Frame) -> Self::Payload;
@@ -38,7 +35,6 @@ pub(crate) trait FrameHandler<S: State> {
 pub struct PesitServer {
     port: u16,
     listener: TcpListener,
-    state: Arc<Mutex<ServerState>>,
 }
 
 impl PesitServer {
@@ -60,11 +56,7 @@ impl PesitServer {
             Err(e) => return Err(e.into()),
         };
 
-        Ok(Self {
-            port,
-            listener,
-            state: Arc::new(Mutex::new(ServerState::default())),
-        })
+        Ok(Self { port, listener })
     }
 
     /// Runs the server, accepting incoming connections.
@@ -83,10 +75,9 @@ impl PesitServer {
             log::info!("Accepted connection from {}", sock.peer_addr()?);
 
             let resp_command_frame = PesitFramedStream::with_capacity(sock, PesitCodec, 8 * 1024);
-            let s = Arc::clone(&self.state);
             tokio::spawn(async move {
                 let mut handler = PesitServerHandler::new(resp_command_frame);
-                if let Err(e) = handler.handle(s).await {
+                if let Err(e) = handler.handle().await {
                     log::error!("Failed to handle command: {e}");
                 }
             });
@@ -107,18 +98,23 @@ impl PesitServer {
 
 struct PesitServerHandler {
     conn: PesitFramedStream,
+    state: ServerState,
 }
 
 impl PesitServerHandler {
     pub fn new(conn: PesitFramedStream) -> Self {
-        Self { conn }
+        Self {
+            conn,
+            state: ServerState::default(),
+        }
     }
 
-    pub async fn handle(&mut self, state: Arc<Mutex<ServerState>>) -> Result<(), PesitError> {
+    pub async fn handle(&mut self) -> Result<(), PesitError> {
         macro_rules! handle_frame {
             ($frame:ident, $handler:ident) => {{
-                let lock = state.lock().await;
-                $handler {}.handle(&mut self.conn, $frame, lock).await?;
+                $handler {}
+                    .handle(&mut self.conn, $frame, &mut self.state)
+                    .await?;
             }};
         }
         while let Some(frame) = self.conn.next().await {

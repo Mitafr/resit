@@ -1,4 +1,4 @@
-use pesit_client::server::PesitServer;
+use resit::server::PesitServer;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
