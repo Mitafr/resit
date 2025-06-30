@@ -1,10 +1,10 @@
 [package]
-name = "pesit_client"
+name = "resit"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "pesit_client"
+name = "resit"
 path = "src/lib.rs"
 crate-type = ["lib"]
 description = "A client library for the PESIT protocol"

@@ -40,7 +40,7 @@ impl PesitSession {
     /// # Errors
     ///
     /// Returns an error if the file could not be sent.
-    pub async fn send_file(&mut self, _path: &Path) -> Result<(), PesitError> {
+    pub async fn send_file<P: AsRef<Path>>(&mut self, path: P) -> Result<(), PesitError> {
         self.client.init_connection().await?;
         Ok(())
     }
