@@ -1,4 +1,4 @@
-use std::future::Future;
+use std::{future::Future, net::IpAddr};
 
 use tokio::net::{TcpListener, TcpStream};
 use tokio_stream::StreamExt;
@@ -33,7 +33,7 @@ pub(crate) trait FrameHandler<S: State> {
 /// PESIT server struct for handling client connections.
 #[derive(Debug)]
 pub struct PesitServer {
-    port: u16,
+    address: IpAddr,
     listener: TcpListener,
 }
 
@@ -45,18 +45,16 @@ impl PesitServer {
     ///
     /// # Errors
     /// This function will return an error if the server fails to bind to the specified port.
-    pub async fn new(port: u16) -> Result<Self, PesitError> {
-        let addr = format!("127.0.0.1:{port}");
-
-        let listener = match TcpListener::bind(&addr).await {
+    pub async fn new(address: IpAddr, port: u16) -> Result<Self, PesitError> {
+        let listener = match TcpListener::bind((address, port)).await {
             Ok(tcp_listener) => {
-                log::info!("TCP listener started on port {port}");
+                log::info!("TCP listener started on {address}:{port}");
                 tcp_listener
             }
             Err(e) => return Err(e.into()),
         };
 
-        Ok(Self { port, listener })
+        Ok(Self { address, listener })
     }
 
     /// Runs the server, accepting incoming connections.
@@ -133,5 +131,14 @@ impl PesitServerHandler {
             }
         }
         Ok(())
+    }
+}
+
+impl Drop for PesitServerHandler {
+    fn drop(&mut self) {
+        log::info!(
+            "Dropping PesitServerHandler, last state was = {:?}",
+            self.state
+        );
     }
 }
