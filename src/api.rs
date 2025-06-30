@@ -16,11 +16,11 @@ impl PesitSession {
     ///
     /// # Errors
     /// Returns an error if the connection fails.
-    pub async fn connect(addr: &str) -> Result<Self, PesitError> {
-        let client = PesitClient::connect(addr).await?;
+    pub async fn connect<S: AsRef<str>>(addr: S) -> Result<Self, PesitError> {
+        let client = PesitClient::connect(addr.as_ref()).await?;
         Ok(Self {
             client,
-            addr: addr.to_string(),
+            addr: addr.as_ref().to_string(),
         })
     }
 

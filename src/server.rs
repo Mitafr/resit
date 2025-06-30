@@ -1,6 +1,6 @@
-use std::{future::Future, net::IpAddr};
+use std::{future::Future, str::FromStr};
 
-use tokio::net::{TcpListener, TcpStream};
+use tokio::net::{unix::SocketAddr, TcpListener, TcpStream, ToSocketAddrs};
 use tokio_stream::StreamExt;
 
 use crate::{
@@ -33,7 +33,7 @@ pub(crate) trait FrameHandler<S: State> {
 /// PESIT server struct for handling client connections.
 #[derive(Debug)]
 pub struct PesitServer {
-    address: IpAddr,
+    addr: String,
     listener: TcpListener,
 }
 
@@ -45,16 +45,19 @@ impl PesitServer {
     ///
     /// # Errors
     /// This function will return an error if the server fails to bind to the specified port.
-    pub async fn new(address: IpAddr, port: u16) -> Result<Self, PesitError> {
-        let listener = match TcpListener::bind((address, port)).await {
+    pub async fn new<A: AsRef<str>>(addr: A) -> Result<Self, PesitError> {
+        let listener = match TcpListener::bind(addr.as_ref()).await {
             Ok(tcp_listener) => {
-                log::info!("TCP listener started on {address}:{port}");
+                log::info!("TCP listener started on {}", addr.as_ref());
                 tcp_listener
             }
             Err(e) => return Err(e.into()),
         };
 
-        Ok(Self { address, listener })
+        Ok(Self {
+            addr: addr.as_ref().into(),
+            listener,
+        })
     }
 
     /// Runs the server, accepting incoming connections.

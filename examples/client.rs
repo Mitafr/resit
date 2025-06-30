@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use pesit_client::api::PesitSession;
+use resit::api::PesitSession;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
