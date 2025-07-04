@@ -1,6 +1,6 @@
-use std::{future::Future, str::FromStr};
+use std::future::Future;
 
-use tokio::net::{unix::SocketAddr, TcpListener, TcpStream, ToSocketAddrs};
+use tokio::net::{TcpListener, TcpStream};
 use tokio_stream::StreamExt;
 
 use crate::{

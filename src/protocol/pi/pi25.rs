@@ -1,0 +1,40 @@
+use nom::{Err, IResult};
+
+use crate::protocol::pi::Pi;
+
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct Pi25(u16);
+
+impl Pi for Pi25 {
+    fn parse(data: &[u8]) -> IResult<&[u8], Self>
+    where
+        Self: Sized,
+    {
+        if data.len() < 2 {
+            Err(nom::Err::Incomplete(nom::Needed::new(2)))
+        } else {
+            let value = u16::from_le_bytes([data[0], data[1]]);
+            Ok((&data[2..], Self(value)))
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse() {
+        let data = vec![0, 0];
+        let (rem, pi) = Pi25::parse(&data).unwrap();
+        assert_eq!(rem, &data[2..]);
+        assert_eq!(pi.0, 0);
+    }
+
+    #[test]
+    fn test_parse_incomplete() {
+        let data = vec![0];
+        let result = Pi25::parse(&data);
+        assert!(result.is_err());
+    }
+}

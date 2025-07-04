@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use futures::SinkExt;
 use nom::IResult;
 
@@ -6,7 +8,7 @@ use crate::{
     error::PesitError,
     protocol::{
         frame::{types::FrameType, Frame, FrameHeader},
-        pi::{Pi, Pi1, Pi3, Pi4, Pi5, Pi6, Pi7, Pi99},
+        pi::{Pi, Pi1, Pi11, Pi12, Pi13, Pi15, Pi16, Pi17, Pi25, Pi3, Pi4, Pi5, Pi6, Pi7, Pi99},
     },
     server::FrameHandler,
     state::ServerState,
@@ -16,6 +18,7 @@ fn parse_pi<P: Pi>(input: &[u8]) -> IResult<&[u8], P> {
     P::parse(input)
 }
 
+pub(crate) struct FCreateHandler {}
 pub(crate) struct FConnectHandler {}
 pub(crate) struct FReleaseHandler {}
 
@@ -108,5 +111,38 @@ impl FrameHandler<ServerState> for FReleaseHandler {
 
     fn extract_payload(&self, _frame: &Frame) -> Self::Payload {
         ()
+    }
+}
+
+impl FrameHandler<ServerState> for FCreateHandler {
+    type Payload = Result<
+        (
+            Option<Pi3>,
+            Option<Pi4>,
+            Pi11,
+            Pi12,
+            Pi13,
+            Pi15,
+            Pi16,
+            Pi17,
+            Pi25,
+        ),
+        PesitError,
+    >;
+    async fn handle(
+        &self,
+        conn: &mut PesitFramedStream,
+        frame: Frame,
+        state: &mut ServerState,
+    ) -> Result<(), PesitError> {
+        log::debug!("Handling FCreate frame");
+        let payload = self.extract_payload(&frame)?;
+        log::info!("{payload:?}");
+        *state = ServerState::Connected;
+        Ok(())
+    }
+
+    fn extract_payload(&self, frame: &Frame) -> Self::Payload {
+        Err(PesitError::Parse)
     }
 }
