@@ -2,6 +2,7 @@
 pub enum FrameType {
     #[default]
     Unknown,
+
     FConnect,
     FAConnect,
     FRConnect,
@@ -23,7 +24,14 @@ pub enum FrameType {
     FMsgDM,
     FMsgMM,
     FMsgFM,
-
+    FDtf,
+    FDtfDa,
+    FDtfMa,
+    FDtfFa,
+    FDtfEnd,
+    FSyn,
+    FReSyn,
+    FItf,
     //Ack
     FAckCreate,
     FAckSelect,
@@ -31,6 +39,12 @@ pub enum FrameType {
     FAckMsg,
     FAckOrf,
     FAckCrf,
+    FAckRead,
+    FAckWrite,
+    FAckTransferEnd,
+    FAckSyn,
+    FAckReSyn,
+    FAckIdt,
 }
 
 impl FrameType {
@@ -61,6 +75,26 @@ impl FrameType {
             [0xC0, 0x33, _, 0x00] => FrameType::FAckOrf,
             [0xC0, 0x15, _, 0x00] => FrameType::FCrf,
             [0xC0, 0x34, _, 0x00] => FrameType::FAckCrf,
+            // Start-End Transfer Phase
+            [0xC0, 0x01, _, 0x00] => FrameType::FRead,
+            [0xC0, 0x35, _, 0x00] => FrameType::FAckRead,
+            [0xC0, 0x02, _, 0x00] => FrameType::FWrite,
+            [0xC0, 0x36, _, 0x00] => FrameType::FAckWrite,
+            [0xC0, 0x08, _, 0x00] => FrameType::FTransferEnd,
+            [0xC0, 0x37, _, 0x00] => FrameType::FAckTransferEnd,
+            // Data Transfer Phase
+            [0x00, 0x00, _, 0x00] => FrameType::FDtf,
+            [0x00, 0x41, _, 0x00] => FrameType::FDtfDa,
+            [0x00, 0x40, _, 0x00] => FrameType::FDtfMa,
+            [0x00, 0x42, _, 0x00] => FrameType::FDtfFa,
+            [0xC0, 0x04, _, 0x00] => FrameType::FDtfEnd,
+            [0xC0, 0x03, _, 0x00] => FrameType::FSyn,
+            [0xC0, 0x38, _, 0x00] => FrameType::FAckSyn,
+            [0xC0, 0x05, _, 0x00] => FrameType::FReSyn,
+            [0xC0, 0x39, _, 0x00] => FrameType::FAckReSyn,
+            // Interrupt Phase
+            [0xC0, 0x06, _, 0x00] => FrameType::FItf,
+            [0xC0, 0x3A, _, 0x00] => FrameType::FAckIdt,
             _ => todo!("not implemented frame type: {value:x?}"),
         }
     }
