@@ -8,7 +8,7 @@ use super::frame::Frame;
 pub(crate) struct Parser {}
 
 impl Parser {
-    pub fn parse(self, input: &mut BytesMut) -> Frame {
+    pub fn parse(input: &mut BytesMut) -> Frame {
         let header = FrameHeader {
             kind: FrameType::from_header(<[u8; 4]>::try_from(&input[2..6]).unwrap()),
             ..Default::default()

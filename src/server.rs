@@ -9,7 +9,7 @@ use crate::{
     protocol::{
         codec::PesitCodec,
         frame::{
-            handler::{FConnectHandler, FReleaseHandler},
+            handler::{FConnectHandler, FCreateHandler, FReleaseHandler},
             types::FrameType,
             Frame,
         },
@@ -17,9 +17,14 @@ use crate::{
     state::{ServerState, State},
 };
 
+/// Trait for handling PESIT frames.
+/// This trait is implemented to handle Frames for a specific State for Client or Server.
 pub(crate) trait FrameHandler<S: State> {
+    /// The type of the payload extracted from the frame.
+    /// It usually contains a tuple containing all the protocol information that can be extracted.
     type Payload;
 
+    /// Handles the incoming frame, implements the logic behind FPDU and updates the connection state.
     fn handle(
         &self,
         conn: &mut PesitFramedStream,
@@ -27,6 +32,7 @@ pub(crate) trait FrameHandler<S: State> {
         state: &mut S,
     ) -> impl Future<Output = Result<(), PesitError>> + Send;
 
+    /// Extracts the payload from the incoming frame.
     fn extract_payload(&self, frame: &Frame) -> Self::Payload;
 }
 
@@ -133,6 +139,7 @@ impl PesitServerHandler {
                 Ok(frame) => match frame.header.kind {
                     FrameType::FConnect => handle_frame!(frame, FConnectHandler),
                     FrameType::FRelease => handle_frame!(frame, FReleaseHandler),
+                    FrameType::FCreate => handle_frame!(frame, FCreateHandler),
                     _ => {
                         todo!("Handle other frame types here");
                     }

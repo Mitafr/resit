@@ -17,8 +17,8 @@ impl Pi for Pi15 {
     where
         Self: Sized,
     {
-        if data.len() < 1 {
-            Ok((&data[..], Self(Recovered::default())))
+        if data.is_empty() {
+            Ok((data, Self(Recovered::default())))
         } else {
             let recovered = match data[0] {
                 0 => Recovered::New,

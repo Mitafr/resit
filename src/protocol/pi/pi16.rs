@@ -18,8 +18,8 @@ impl Pi for Pi16 {
     where
         Self: Sized,
     {
-        if data.len() < 1 {
-            Ok((&data[..], Self(DataCoding::default())))
+        if data.is_empty() {
+            Ok((data, Self(DataCoding::default())))
         } else {
             let coding = match data[0] {
                 0 => DataCoding::Ascii,

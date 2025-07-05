@@ -9,6 +9,7 @@ use tokio_stream::StreamExt;
 pub struct PesitClient {
     pub stream: PesitFramedStream,
     pub state: ClientState,
+    id: u32,
 }
 
 impl PesitClient {
@@ -18,6 +19,7 @@ impl PesitClient {
         Ok(Self {
             stream,
             state: ClientState::Idle,
+            id: rand::random(),
         })
     }
 
@@ -82,6 +84,24 @@ impl PesitClient {
             }
         }
         self.state = ClientState::Disconnected;
+        Ok(())
+    }
+
+    pub(crate) async fn create(&mut self) -> Result<(), PesitError> {
+        let frame = Frame::builder()
+            .header(
+                FrameHeader::builder()
+                    .kind(FrameType::FCreate)
+                    .msg_type(0x22)
+                    .dest_id(0x0)
+                    .oct6(0)
+                    .length(0)
+                    .build(),
+            )
+            .payload(vec![])
+            .len(0)
+            .build();
+        self.send_frame(frame).await?;
         Ok(())
     }
 }

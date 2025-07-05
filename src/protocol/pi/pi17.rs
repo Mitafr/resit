@@ -18,8 +18,8 @@ impl Pi for Pi17 {
     where
         Self: Sized,
     {
-        if data.len() < 1 {
-            Ok((&data[..], Self(TransferPriority::default())))
+        if data.is_empty() {
+            Ok((data, Self(TransferPriority::default())))
         } else {
             let priority = match data[0] {
                 0 => TransferPriority::Urgent,
@@ -62,7 +62,7 @@ mod tests {
         let data = vec![];
         let (rem, pi) = Pi17::parse(&data).unwrap();
         assert_eq!(rem, &data[..]);
-        assert_eq!(pi.0, TransferPriority::default())
+        assert_eq!(pi.0, TransferPriority::default());
     }
 
     #[test]

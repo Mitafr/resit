@@ -15,8 +15,7 @@ impl Decoder for PesitCodec {
             return Ok(None);
         }
 
-        let parser = Parser::default();
-        let frame = parser.parse(src);
+        let frame = Parser::parse(src);
         src.advance(frame.len);
         Ok(Some(frame))
     }
@@ -28,8 +27,9 @@ impl Encoder<Frame> for PesitCodec {
     fn encode(&mut self, item: Frame, dst: &mut BytesMut) -> Result<(), Self::Error> {
         let header = item.header;
         dst.put_u16(item.header.length);
-        dst.put_u8(header.kind.into());
-        dst.put_u8(header.msg_type);
+        let kind = header.kind.into_arr();
+        dst.put_u8(kind[0]);
+        dst.put_u8(kind[1]);
         dst.put_u8(header.dest_id);
         dst.put_u8(header.oct6);
         dst.put_slice(&item.payload);

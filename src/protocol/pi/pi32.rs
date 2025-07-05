@@ -3,9 +3,9 @@ use nom::IResult;
 use crate::protocol::pi::Pi;
 
 #[derive(Debug, Clone, Default, PartialEq)]
-pub struct Pi25(u16);
+pub struct Pi32(u16);
 
-impl Pi for Pi25 {
+impl Pi for Pi32 {
     fn parse(data: &[u8]) -> IResult<&[u8], Self>
     where
         Self: Sized,
@@ -26,7 +26,7 @@ mod tests {
     #[test]
     fn test_parse() {
         let data = vec![0, 0];
-        let (rem, pi) = Pi25::parse(&data).unwrap();
+        let (rem, pi) = Pi32::parse(&data).unwrap();
         assert_eq!(rem, &data[2..]);
         assert_eq!(pi.0, 0);
     }
@@ -34,7 +34,7 @@ mod tests {
     #[test]
     fn test_parse_incomplete() {
         let data = vec![0];
-        let result = Pi25::parse(&data);
+        let result = Pi32::parse(&data);
         assert!(result.is_err());
     }
 }
