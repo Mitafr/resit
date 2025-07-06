@@ -4,8 +4,8 @@ use crate::protocol::pi::Pi;
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Pi2 {
-    error_type: u8,
-    reason_code: u16,
+    pub error_type: u8,
+    pub reason_code: u16,
 }
 
 impl Pi for Pi2 {
@@ -20,6 +20,13 @@ impl Pi for Pi2 {
                 reason_code,
             },
         ))
+    }
+
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut buf = Vec::new();
+        buf.push(self.error_type);
+        buf.extend_from_slice(&self.reason_code.to_be_bytes());
+        buf
     }
 }
 

@@ -60,7 +60,7 @@ impl FrameType {
             [0x02, 0x25, _, _] => FrameType::FAbort,
             // Select Phase
             [0xC0, 0x11, _, 0x00] => FrameType::FCreate,
-            [0xC0, 0x30, _, 0x00] => FrameType::FAckCreate,
+            [0xC0, 0x30, _, _] => FrameType::FAckCreate,
             [0xC0, 0x12, _, 0x00] => FrameType::FSelect,
             [0xC0, 0x31, _, 0x00] => FrameType::FAckSelect,
             [0xC0, 0x13, _, 0x00] => FrameType::FDeselect,

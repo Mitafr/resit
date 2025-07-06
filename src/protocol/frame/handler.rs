@@ -9,7 +9,7 @@ use crate::{
         pi::prelude::*,
     },
     server::FrameHandler,
-    state::ServerState,
+    state::{ClientState, ServerState},
 };
 
 fn parse_pi<P: Pi>(input: &[u8]) -> IResult<&[u8], P> {
@@ -17,6 +17,7 @@ fn parse_pi<P: Pi>(input: &[u8]) -> IResult<&[u8], P> {
 }
 
 pub(crate) struct FCreateHandler {}
+pub(crate) struct FAckCreateHandler {}
 pub(crate) struct FConnectHandler {}
 pub(crate) struct FReleaseHandler {}
 
@@ -171,7 +172,27 @@ impl FrameHandler<ServerState> for FCreateHandler {
             payload.19,
             payload.20,
         );
-        *state = ServerState::Connected;
+        *state = ServerState::FileSelection;
+        let ack_frame = Frame::builder()
+            .header(
+                FrameHeader::builder()
+                    .kind(FrameType::FAckCreate)
+                    .msg_type(0x00)
+                    .dest_id(0x0)
+                    .oct6(rand::random::<u8>())
+                    .length(0)
+                    .build(),
+            )
+            .payload(
+                Pi2 {
+                    error_type: 0,
+                    reason_code: 0,
+                }
+                .to_bytes(),
+            )
+            .len(0)
+            .build();
+        conn.send(ack_frame).await?;
         Ok(())
     }
 
@@ -221,5 +242,29 @@ impl FrameHandler<ServerState> for FCreateHandler {
             pi62,
             pi99,
         ))
+    }
+}
+
+impl FrameHandler<ClientState> for FAckCreateHandler {
+    type Payload = (Pi2, Option<Pi13>, Pi25, Option<Pi99>);
+    async fn handle(
+        &self,
+        _conn: &mut PesitFramedStream,
+        frame: Frame,
+        state: &mut ClientState,
+    ) -> Result<(), PesitError> {
+        let _ = self.extract_payload(&frame);
+        log::info!("Handling FAckCreate frame: {frame:?}");
+        *state = ClientState::FileSelection;
+        Ok(())
+    }
+
+    fn extract_payload(&self, frame: &Frame) -> Self::Payload {
+        let raw_payload = &frame.payload;
+        let (raw_payload, pi2) = parse_pi::<Pi2>(raw_payload).unwrap_or_default();
+        let (raw_payload, pi13) = parse_pi::<Pi13>(raw_payload).unwrap_or_default();
+        let (raw_payload, pi25) = parse_pi::<Pi25>(raw_payload).unwrap_or_default();
+        let (_raw_payload, pi99) = parse_pi::<Pi99>(raw_payload).unwrap_or_default();
+        (pi2, Some(pi13), pi25, Some(pi99))
     }
 }

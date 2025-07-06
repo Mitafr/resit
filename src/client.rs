@@ -1,6 +1,8 @@
 use crate::connection::PesitFramedStream;
+use crate::protocol::frame::handler::FAckCreateHandler;
 use crate::protocol::frame::types::FrameType;
 use crate::protocol::frame::FrameHeader;
+use crate::server::FrameHandler;
 use crate::{connection::connect, error::PesitError, protocol::frame::Frame, state::ClientState};
 use futures::SinkExt;
 use tokio_stream::StreamExt;
@@ -102,6 +104,15 @@ impl PesitClient {
             .len(0)
             .build();
         self.send_frame(frame).await?;
+        if let Ok(confirm_frame) = self.receive_frame().await {
+            if confirm_frame.header.kind == FrameType::FAckCreate {
+                FAckCreateHandler {}
+                    .handle(&mut self.stream, confirm_frame, &mut self.state)
+                    .await?;
+            } else {
+                log::warn!("Received unexpected frame during creation: {confirm_frame:?}");
+            }
+        }
         Ok(())
     }
 }

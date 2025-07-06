@@ -11,6 +11,8 @@ pub enum ClientState {
     Disconnected,
     /// The client is connected to the server.
     Connected,
+    /// The client is in the process of file selection.
+    FileSelection,
     /// The client is synchronized with the server.
     Synchronized,
     /// The client is currently transferring a file.
@@ -31,6 +33,8 @@ pub enum ServerState {
     Disconnected,
     /// The server is connected to the client.
     Connected,
+    /// The server is in the process of file selection.
+    FileSelection,
     /// The server is synchronized with the client.
     Synchronized,
     /// The server is currently transferring a file.
