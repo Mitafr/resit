@@ -2,7 +2,6 @@ use bon::Builder;
 
 use crate::{error::PesitError, protocol::frame::types::FrameType};
 
-pub(crate) mod handler;
 pub(crate) mod types;
 
 #[derive(Debug, Default, Clone, PartialEq, Builder)]
