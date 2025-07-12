@@ -1,13 +1,17 @@
+use std::borrow::Cow;
+
 use super::prelude::*;
 
 pub(crate) struct FReleaseHandler {}
 
-impl FrameHandler<ServerState> for FReleaseHandler {
-    type Payload = ();
+impl<'r> FrameHandler<'r, ServerState> for FReleaseHandler {
+    type RawPayload = Cow<'r, [u8]>;
+
+    type PiPayload = ();
+
     async fn handle(
-        &self,
         conn: &mut PesitFramedStream,
-        _frame: Frame,
+        _frame: Frame<Self::RawPayload>,
         state: &mut ServerState,
     ) -> Result<(), PesitError> {
         log::debug!("Handling FRelease frame");
@@ -21,7 +25,7 @@ impl FrameHandler<ServerState> for FReleaseHandler {
                         .length(0)
                         .build(),
                 )
-                .payload(vec![])
+                .payload(vec![0u8])
                 .len(0)
                 .build(),
         )
@@ -33,7 +37,10 @@ impl FrameHandler<ServerState> for FReleaseHandler {
         Ok(())
     }
 
-    fn extract_payload(&self, _frame: &Frame) -> Self::Payload {
-        ()
+    fn extract_payload(
+        frame: &'r Frame<Self::RawPayload>,
+    ) -> Result<(Self::RawPayload, Self::PiPayload), PesitError> {
+        let raw_payload = &frame.payload;
+        Ok((Cow::Borrowed(raw_payload), ()))
     }
 }

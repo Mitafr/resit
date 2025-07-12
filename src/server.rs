@@ -1,5 +1,3 @@
-use std::future::Future;
-
 use tokio::net::{TcpListener, TcpStream};
 use tokio_stream::StreamExt;
 
@@ -7,31 +5,11 @@ use crate::{
     connection::PesitFramedStream,
     error::PesitError,
     protocol::{
-        codec::PesitCodec,
-        frame::{types::FrameType, Frame},
-        handler::prelude::*,
+        codec::PesitCodec, frame::types::FrameType, handler::convert_frame_owned,
+        handler::prelude::*, handler::FrameHandler,
     },
-    state::{ServerState, State},
+    state::ServerState,
 };
-
-/// Trait for handling PESIT frames.
-/// This trait is implemented to handle Frames for a specific State for Client or Server.
-pub(crate) trait FrameHandler<S: State> {
-    /// The type of the payload extracted from the frame.
-    /// It usually contains a tuple containing all the protocol information that can be extracted.
-    type Payload;
-
-    /// Handles the incoming frame, implements the logic behind FPDU and updates the connection state.
-    fn handle(
-        &self,
-        conn: &mut PesitFramedStream,
-        frame: Frame,
-        state: &mut S,
-    ) -> impl Future<Output = Result<(), PesitError>> + Send;
-
-    /// Extracts the payload from the incoming frame.
-    fn extract_payload(&self, frame: &Frame) -> Self::Payload;
-}
 
 /// PESIT server struct for handling client connections.
 #[derive(Debug)]
@@ -126,8 +104,7 @@ impl PesitServerHandler {
     pub async fn handle(&mut self) -> Result<(), PesitError> {
         macro_rules! handle_frame {
             ($frame:ident, $handler:ident) => {{
-                $handler {}
-                    .handle(&mut self.conn, $frame, &mut self.state)
+                $handler::handle(&mut self.conn, convert_frame_owned($frame), &mut self.state)
                     .await?;
             }};
         }

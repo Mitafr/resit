@@ -1,8 +1,12 @@
+use std::borrow::Cow;
+
 use crate::connection::PesitFramedStream;
 use crate::protocol::frame::types::FrameType;
 use crate::protocol::frame::FrameHeader;
-use crate::protocol::handler::prelude::*;
-use crate::server::FrameHandler;
+use crate::protocol::handler::{convert_frame_owned, prelude::*, FrameHandler};
+use crate::protocol::pi::pi12::Pi12;
+use crate::protocol::pi::pi3::Pi3;
+use crate::protocol::pi::Pi;
 use crate::{connection::connect, error::PesitError, protocol::frame::Frame, state::ClientState};
 use futures::SinkExt;
 use tokio_stream::StreamExt;
@@ -36,7 +40,7 @@ impl PesitClient {
                     .length(0)
                     .build(),
             )
-            .payload(vec![1])
+            .payload(Pi3::default().as_bytes())
             .len(0)
             .build();
         self.send_frame(frame).await?;
@@ -50,13 +54,13 @@ impl PesitClient {
         Ok(())
     }
 
-    pub async fn send_frame(&mut self, frame: Frame) -> Result<(), PesitError> {
+    pub async fn send_frame(&mut self, frame: Frame<Vec<u8>>) -> Result<(), PesitError> {
         log::debug!("Sending frame: {frame:?}");
         self.stream.send(frame).await?;
         Ok(())
     }
 
-    pub async fn receive_frame(&mut self) -> Result<Frame, PesitError> {
+    pub async fn receive_frame(&mut self) -> Result<Frame<Vec<u8>>, PesitError> {
         let frame = self.stream.next().await.ok_or(PesitError::Protocol)?;
         log::debug!("Received frame: {frame:?}");
         frame
@@ -100,15 +104,24 @@ impl PesitClient {
                     .length(0)
                     .build(),
             )
-            .payload(vec![])
+            .payload(
+                Pi12::builder()
+                    .identifier(crate::protocol::pi::pi12::IdentifierType::Standard)
+                    .file_reference(*b"A24070124071")
+                    .build()
+                    .as_bytes(),
+            )
             .len(0)
             .build();
         self.send_frame(frame).await?;
         if let Ok(confirm_frame) = self.receive_frame().await {
             if confirm_frame.header.kind == FrameType::FAckCreate {
-                FAckCreateHandler {}
-                    .handle(&mut self.stream, confirm_frame, &mut self.state)
-                    .await?;
+                FAckCreateHandler::handle(
+                    &mut self.stream,
+                    convert_frame_owned(confirm_frame),
+                    &mut self.state,
+                )
+                .await?;
             } else {
                 log::warn!("Received unexpected frame during creation: {confirm_frame:?}");
             }

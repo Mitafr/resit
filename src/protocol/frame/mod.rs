@@ -5,36 +5,23 @@ use crate::{error::PesitError, protocol::frame::types::FrameType};
 pub(crate) mod types;
 
 #[derive(Debug, Default, Clone, PartialEq, Builder)]
-pub(crate) struct Frame {
+pub(crate) struct Frame<P> {
     pub header: FrameHeader,
-    pub payload: Vec<u8>,
+    pub payload: P,
     pub len: usize,
 }
 
-impl Frame {
-    pub fn new() -> Self {
-        Self {
-            header: FrameHeader {
-                kind: FrameType::Unknown,
-                length: 0,
-                msg_type: 0,
-                dest_id: 0,
-                oct6: 0,
-            },
-            payload: Vec::new(),
-            len: 0,
-        }
-    }
-
-    pub fn from_bytes(input: &[u8]) -> Result<Self, PesitError> {
-        let header = FrameHeader::from_bytes(input)?;
+impl TryFrom<Vec<u8>> for Frame<Vec<u8>> {
+    type Error = PesitError;
+    fn try_from(value: Vec<u8>) -> Result<Frame<Vec<u8>>, Self::Error> {
+        let header = FrameHeader::from_bytes(&value)?;
         let payload_start = 3;
-        let payload = input[payload_start..].to_vec();
+        let payload = value[payload_start..].to_vec();
 
         Ok(Self {
             header,
             payload,
-            len: input.len(),
+            len: value.len(),
         })
     }
 }

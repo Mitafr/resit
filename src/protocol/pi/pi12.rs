@@ -2,7 +2,7 @@ use nom::IResult;
 
 use crate::protocol::pi::Pi;
 
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub(crate) enum VersionRequestType {
     #[default]
     NamedReference = 0,
@@ -11,14 +11,14 @@ pub(crate) enum VersionRequestType {
     AllVersions = 3,
 }
 
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub(crate) enum IdentifierType {
     #[default]
     MutuallyAggreed = 0,
     Standard = 1,
 }
 
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, bon::Builder)]
 pub struct Pi12 {
     identifier: IdentifierType,
     reference_type: Option<VersionRequestType>,
@@ -72,6 +72,20 @@ impl Pi for Pi12 {
                 ))
             }
         }
+    }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.push(self.identifier as u8);
+        match self.reference_type {
+            Some(ref ref_type) => bytes.push(*ref_type as u8),
+            None => bytes.push(0),
+        };
+        match self.file_reference {
+            Some(ref file_ref) => bytes.extend_from_slice(file_ref),
+            None => bytes.extend_from_slice(&[0; 12]),
+        };
+        bytes
     }
 }
 

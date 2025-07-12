@@ -12,6 +12,10 @@ impl Pi for Pi3 {
         let (data, bytes) = nom::bytes::complete::take(24usize)(data)?;
         Ok((data, Pi3(bytes.try_into().unwrap())))
     }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        self.0.to_vec()
+    }
 }
 
 #[cfg(test)]

@@ -4,9 +4,9 @@ pub(super) use crate::{
     error::PesitError,
     protocol::{
         frame::{types::FrameType, Frame, FrameHeader},
+        handler::FrameHandler,
         pi::prelude::*,
     },
-    server::FrameHandler,
     state::{ClientState, ServerState},
 };
 pub(super) use futures::SinkExt;

@@ -7,7 +7,7 @@ use tokio_util::codec::{Decoder, Encoder};
 pub(crate) struct PesitCodec;
 
 impl Decoder for PesitCodec {
-    type Item = Frame;
+    type Item = Frame<Vec<u8>>;
     type Error = PesitError;
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
@@ -21,10 +21,10 @@ impl Decoder for PesitCodec {
     }
 }
 
-impl Encoder<Frame> for PesitCodec {
+impl Encoder<Frame<Vec<u8>>> for PesitCodec {
     type Error = PesitError;
 
-    fn encode(&mut self, item: Frame, dst: &mut BytesMut) -> Result<(), Self::Error> {
+    fn encode(&mut self, item: Frame<Vec<u8>>, dst: &mut BytesMut) -> Result<(), Self::Error> {
         let header = item.header;
         dst.put_u16(item.header.length);
         let kind = header.kind.into_arr();

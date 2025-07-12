@@ -38,7 +38,7 @@ pub trait Pi: Default {
     where
         Self: Sized;
 
-    fn to_bytes(&self) -> Vec<u8> {
+    fn as_bytes(&self) -> Vec<u8> {
         Vec::new()
     }
 }

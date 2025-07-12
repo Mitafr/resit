@@ -22,7 +22,7 @@ impl Pi for Pi2 {
         ))
     }
 
-    fn to_bytes(&self) -> Vec<u8> {
+    fn as_bytes(&self) -> Vec<u8> {
         let mut buf = Vec::new();
         buf.push(self.error_type);
         buf.extend_from_slice(&self.reason_code.to_be_bytes());
