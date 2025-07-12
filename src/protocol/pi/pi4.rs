@@ -10,6 +10,22 @@ impl Pi for Pi4 {
         let (data, bytes) = nom::bytes::complete::take(24usize)(data)?;
         Ok((data, Pi4(bytes.try_into().unwrap())))
     }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        self.0.to_vec()
+    }
+
+    fn code(&self) -> u8 {
+        4
+    }
+
+    fn len(&self) -> usize {
+        24
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::C
+    }
 }
 
 #[cfg(test)]

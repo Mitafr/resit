@@ -3,14 +3,14 @@ use nom::IResult;
 
 use crate::protocol::pi::Pi;
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub(crate) enum UseOfSignature {
     #[default]
     NoSignature = 0,
     FileSigned = 1,
 }
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Pi34(pub UseOfSignature);
 
 impl Pi for Pi34 {
@@ -28,6 +28,24 @@ impl Pi for Pi34 {
             }
         };
         Ok((data, Pi34(version)))
+    }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        let mut buf = Vec::with_capacity(1);
+        buf.push(self.0 as u8);
+        buf
+    }
+
+    fn code(&self) -> u8 {
+        34
+    }
+
+    fn len(&self) -> usize {
+        2
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::N
     }
 }
 

@@ -20,6 +20,22 @@ impl Pi for Pi52 {
             Ok((&data[12..], Self(value)))
         }
     }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        self.0.to_vec()
+    }
+
+    fn code(&self) -> u8 {
+        52
+    }
+
+    fn len(&self) -> usize {
+        12
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::D
+    }
 }
 
 #[cfg(test)]

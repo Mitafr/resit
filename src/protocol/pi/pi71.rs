@@ -59,4 +59,26 @@ impl Pi for Pi71 {
         }
         Ok((data, pi))
     }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        let mut buf = Vec::with_capacity(3);
+        buf.push(self.auth as u8);
+        if self.auth {
+            buf.push(self.auth_type.unwrap() as u8);
+            buf.push(self.auth_procedure.unwrap() as u8);
+        }
+        buf
+    }
+
+    fn code(&self) -> u8 {
+        71
+    }
+
+    fn len(&self) -> usize {
+        3
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::A
+    }
 }

@@ -3,7 +3,7 @@ use nom::IResult;
 
 use crate::protocol::pi::Pi;
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub(crate) enum FileAttributes {
     #[default]
     Sequential = 0,
@@ -11,7 +11,7 @@ pub(crate) enum FileAttributes {
     Indexed = 2,
 }
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Pi33(pub FileAttributes);
 
 impl Pi for Pi33 {
@@ -30,6 +30,24 @@ impl Pi for Pi33 {
             }
         };
         Ok((data, Pi33(version)))
+    }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        let mut buf = Vec::with_capacity(1);
+        buf.push(self.0 as u8);
+        buf
+    }
+
+    fn code(&self) -> u8 {
+        33
+    }
+
+    fn len(&self) -> usize {
+        1
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::S
     }
 }
 

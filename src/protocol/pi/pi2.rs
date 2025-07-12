@@ -28,6 +28,18 @@ impl Pi for Pi2 {
         buf.extend_from_slice(&self.reason_code.to_be_bytes());
         buf
     }
+
+    fn code(&self) -> u8 {
+        2
+    }
+
+    fn len(&self) -> usize {
+        3
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::A
+    }
 }
 
 #[cfg(test)]

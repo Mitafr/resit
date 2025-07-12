@@ -37,6 +37,22 @@ impl Pi for Pi11 {
         bytes.copy_from_slice(&data[..2]);
         Ok((&data[2..], Pi11(bytes)))
     }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        self.0.to_vec()
+    }
+
+    fn code(&self) -> u8 {
+        11
+    }
+
+    fn len(&self) -> usize {
+        2
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::N
+    }
 }
 
 #[cfg(test)]

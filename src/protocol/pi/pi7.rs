@@ -34,4 +34,23 @@ impl Pi for Pi7 {
             ))
         }
     }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        let mut buf = Vec::with_capacity(3);
+        buf.extend_from_slice(&self.sync_interval.to_be_bytes());
+        buf.push(self.window);
+        buf
+    }
+
+    fn code(&self) -> u8 {
+        7
+    }
+
+    fn len(&self) -> usize {
+        3
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::A
+    }
 }

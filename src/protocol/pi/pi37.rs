@@ -19,6 +19,22 @@ impl Pi for Pi37 {
         let (data, signature) = nom::bytes::complete::take(80u8)(data)?;
         Ok((data, Pi37(signature.try_into().unwrap())))
     }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        self.0.to_vec()
+    }
+
+    fn code(&self) -> u8 {
+        37
+    }
+
+    fn len(&self) -> usize {
+        80
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::C
+    }
 }
 
 #[cfg(test)]

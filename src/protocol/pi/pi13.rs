@@ -17,6 +17,22 @@ impl Pi for Pi13 {
         array.copy_from_slice(&data[..3]);
         Ok((&data[3..], Self(array)))
     }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        self.0.to_vec()
+    }
+
+    fn code(&self) -> u8 {
+        13
+    }
+
+    fn len(&self) -> usize {
+        3
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::N
+    }
 }
 
 #[cfg(test)]

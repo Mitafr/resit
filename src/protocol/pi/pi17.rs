@@ -35,6 +35,24 @@ impl Pi for Pi17 {
             Ok((&data[1..], Self(priority)))
         }
     }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        let mut buf = Vec::with_capacity(1);
+        buf.push(self.0 as u8);
+        buf
+    }
+
+    fn code(&self) -> u8 {
+        17
+    }
+
+    fn len(&self) -> usize {
+        1
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::S
+    }
 }
 
 #[cfg(test)]

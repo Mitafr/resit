@@ -29,6 +29,29 @@ impl Pi for Pi5 {
             },
         ))
     }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        let mut buf = Vec::with_capacity(16);
+        buf.extend_from_slice(&self.password);
+        if let Some(new_password) = &self.new_password {
+            buf.extend_from_slice(new_password);
+        } else {
+            buf.extend_from_slice(&[0; 8]); // Fill with zeros if no new password
+        }
+        buf
+    }
+
+    fn code(&self) -> u8 {
+        5
+    }
+
+    fn len(&self) -> usize {
+        16
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::C
+    }
 }
 
 #[cfg(test)]

@@ -16,6 +16,18 @@ impl Pi for Pi3 {
     fn as_bytes(&self) -> Vec<u8> {
         self.0.to_vec()
     }
+
+    fn code(&self) -> u8 {
+        3
+    }
+
+    fn len(&self) -> usize {
+        24
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::C
+    }
 }
 
 #[cfg(test)]

@@ -10,6 +10,22 @@ impl Pi for Pi1 {
         let (data, bytes) = take(1usize)(data)?;
         Ok((data, Pi1(bytes[0] == 1)))
     }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        vec![if self.0 { 1 } else { 0 }]
+    }
+
+    fn code(&self) -> u8 {
+        1
+    }
+
+    fn len(&self) -> usize {
+        1
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::S
+    }
 }
 
 #[cfg(test)]

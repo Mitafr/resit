@@ -12,12 +12,27 @@ impl Default for Pi36 {
 }
 
 impl Pi for Pi36 {
-    fn parse(data: &[u8]) -> IResult<&[u8], Self>
+    fn parse(_data: &[u8]) -> IResult<&[u8], Self>
     where
         Self: Sized,
     {
-        let (data, signature) = nom::bytes::complete::take(64u8)(data)?;
-        Ok((data, Pi36(signature.try_into().unwrap())))
+        unreachable!("Not Authorized")
+    }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        unreachable!("Not Authorized")
+    }
+
+    fn code(&self) -> u8 {
+        36
+    }
+
+    fn len(&self) -> usize {
+        64
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::N
     }
 }
 

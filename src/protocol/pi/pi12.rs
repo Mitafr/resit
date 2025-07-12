@@ -87,6 +87,18 @@ impl Pi for Pi12 {
         };
         bytes
     }
+
+    fn code(&self) -> u8 {
+        12
+    }
+
+    fn len(&self) -> usize {
+        14
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::C
+    }
 }
 
 #[cfg(test)]

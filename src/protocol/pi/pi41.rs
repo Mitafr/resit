@@ -3,14 +3,14 @@ use nom::IResult;
 
 use crate::protocol::pi::Pi;
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub(crate) enum StorageReservationUnit {
     #[default]
     Kbytes = 0,
     Articles = 1,
 }
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Pi41(pub StorageReservationUnit);
 
 impl Pi for Pi41 {
@@ -28,6 +28,24 @@ impl Pi for Pi41 {
             }
         };
         Ok((data, Pi41(version)))
+    }
+
+    fn as_bytes(&self) -> Vec<u8> {
+        let mut buf = Vec::with_capacity(1);
+        buf.push(self.0 as u8);
+        buf
+    }
+
+    fn code(&self) -> u8 {
+        41
+    }
+
+    fn len(&self) -> usize {
+        1
+    }
+
+    fn ptype(&self) -> super::PiType {
+        super::PiType::S
     }
 }
 
