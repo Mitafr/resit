@@ -26,7 +26,7 @@ clean:
 coverage:
 	$(CARGO) llvm-cov nextest --lcov --output-path ./target/lcov.info
 
-coverage-report:
+coverage-report: coverage
 	$(CARGO) llvm-cov nextest
 
 
