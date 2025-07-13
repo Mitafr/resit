@@ -12,7 +12,7 @@ build-release:
 	$(CARGO) build --release --color always
 
 test:
-	$(CARGO) test --color always
+	$(CARGO) test --color always --lib
 
 fmt:
 	$(CARGO) fmt --all
@@ -25,6 +25,10 @@ clean:
 
 coverage:
 	$(CARGO) llvm-cov nextest --lcov --output-path ./target/lcov.info
+
+coverage-report:
+	$(CARGO) llvm-cov nextest
+
 
 example-%:
 	RUST_LOG=${RUST_LOG} $(CARGO) run --example $*
