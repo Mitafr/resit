@@ -65,31 +65,33 @@ pub trait Pi: Default + PiDefinition {
 /// This trait defines the definition of a protocol identifier
 pub trait PiDefinition: Default {
     /// Returns the type of the protocol identifier.
-    fn ptype(&self) -> PiType;
+    fn ptype() -> PiType;
 
     /// Returns the length of the protocol identifier.
-    fn len(&self) -> usize;
+    fn len() -> usize;
 
     /// Returns the code of the protocol identifier.
-    fn code(&self) -> u8;
+    fn code() -> u8;
 
     /// Returns the alias name of the protocol identifier.
-    fn alias(&self) -> &'static str;
+    fn alias() -> &'static str;
 }
 
+/// This macro is used to declare a new protocol identifier structure.
+/// It defines the type, length, code, and alias name of the protocol identifier.
 macro_rules! declare_pi_definition {
     ($p: ident, $code: tt, $len: tt, $ptype: path, $name: tt) => {
         impl PiDefinition for $p {
-            fn ptype(&self) -> PiType {
+            fn ptype() -> PiType {
                 $ptype
             }
-            fn len(&self) -> usize {
+            fn len() -> usize {
                 $len
             }
-            fn code(&self) -> u8 {
+            fn code() -> u8 {
                 $code
             }
-            fn alias(&self) -> &'static str {
+            fn alias() -> &'static str {
                 $name
             }
         }
@@ -132,10 +134,9 @@ mod tests_definition {
 
     #[test]
     fn pi_def() {
-        let pi1 = Pi1(true);
-        assert_eq!(pi1.code(), 1);
-        assert_eq!(pi1.len(), 1);
-        assert_eq!(pi1.ptype(), PiType::S);
-        assert_eq!(pi1.alias(), "CRC Usage")
+        assert_eq!(Pi1::code(), 1);
+        assert_eq!(Pi1::len(), 1);
+        assert_eq!(Pi1::ptype(), PiType::S);
+        assert_eq!(Pi1::alias(), "CRC Usage")
     }
 }
