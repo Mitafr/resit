@@ -22,3 +22,16 @@ impl Pi for Pi99 {
         self.0.to_vec()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_pi99() {
+        let default = Pi99::default();
+        assert_eq!(default.as_bytes(), [0; 254]);
+        let pi = Pi99::parse(&[1; 254]).unwrap().1;
+        assert_eq!(pi.as_bytes(), [1; 254]);
+    }
+}
