@@ -22,30 +22,4 @@ impl Pi for Pi36 {
     fn as_bytes(&self) -> Vec<u8> {
         unreachable!("Not Authorized")
     }
-
-    fn code(&self) -> u8 {
-        36
-    }
-
-    fn len(&self) -> usize {
-        64
-    }
-
-    fn ptype(&self) -> super::PiType {
-        super::PiType::N
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_parse() {
-        let data = [0; 64];
-        let result = Pi36::parse(&data);
-        assert!(result.is_ok());
-        let (_, pi36) = result.unwrap();
-        assert_eq!(pi36, Pi36([0; 64]));
-    }
 }

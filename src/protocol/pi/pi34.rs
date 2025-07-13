@@ -35,18 +35,6 @@ impl Pi for Pi34 {
         buf.push(self.0 as u8);
         buf
     }
-
-    fn code(&self) -> u8 {
-        34
-    }
-
-    fn len(&self) -> usize {
-        2
-    }
-
-    fn ptype(&self) -> super::PiType {
-        super::PiType::N
-    }
 }
 
 #[cfg(test)]

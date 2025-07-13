@@ -35,16 +35,4 @@ impl Pi for Pi6 {
         buf.push(self.0 as u8);
         buf
     }
-
-    fn code(&self) -> u8 {
-        6
-    }
-
-    fn len(&self) -> usize {
-        2
-    }
-
-    fn ptype(&self) -> super::PiType {
-        super::PiType::C
-    }
 }

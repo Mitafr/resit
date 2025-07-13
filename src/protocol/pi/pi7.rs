@@ -41,16 +41,4 @@ impl Pi for Pi7 {
         buf.push(self.window);
         buf
     }
-
-    fn code(&self) -> u8 {
-        7
-    }
-
-    fn len(&self) -> usize {
-        3
-    }
-
-    fn ptype(&self) -> super::PiType {
-        super::PiType::A
-    }
 }

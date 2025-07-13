@@ -21,16 +21,4 @@ impl Pi for Pi99 {
     fn as_bytes(&self) -> Vec<u8> {
         self.0.to_vec()
     }
-
-    fn code(&self) -> u8 {
-        99
-    }
-
-    fn len(&self) -> usize {
-        254
-    }
-
-    fn ptype(&self) -> super::PiType {
-        super::PiType::N
-    }
 }

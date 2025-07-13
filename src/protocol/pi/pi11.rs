@@ -11,7 +11,7 @@ pub(crate) enum ExchangeType {
 }
 
 #[derive(Debug, Clone, Default, PartialEq)]
-pub struct Pi11([u8; 2]);
+pub struct Pi11(pub [u8; 2]);
 
 impl Pi11 {
     pub fn exchange_type(&self) -> ExchangeType {
@@ -41,18 +41,6 @@ impl Pi for Pi11 {
     fn as_bytes(&self) -> Vec<u8> {
         self.0.to_vec()
     }
-
-    fn code(&self) -> u8 {
-        11
-    }
-
-    fn len(&self) -> usize {
-        2
-    }
-
-    fn ptype(&self) -> super::PiType {
-        super::PiType::N
-    }
 }
 
 #[cfg(test)]
@@ -67,6 +55,7 @@ mod tests {
         assert_eq!(rem.len(), 0);
         assert_eq!(pi.0, data);
         assert_eq!(pi.exchange_type(), ExchangeType::Send);
+        assert_eq!(pi.as_bytes(), data)
     }
 
     #[test]

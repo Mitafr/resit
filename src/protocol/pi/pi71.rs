@@ -69,16 +69,4 @@ impl Pi for Pi71 {
         }
         buf
     }
-
-    fn code(&self) -> u8 {
-        71
-    }
-
-    fn len(&self) -> usize {
-        3
-    }
-
-    fn ptype(&self) -> super::PiType {
-        super::PiType::A
-    }
 }

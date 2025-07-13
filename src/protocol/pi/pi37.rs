@@ -23,18 +23,6 @@ impl Pi for Pi37 {
     fn as_bytes(&self) -> Vec<u8> {
         self.0.to_vec()
     }
-
-    fn code(&self) -> u8 {
-        37
-    }
-
-    fn len(&self) -> usize {
-        80
-    }
-
-    fn ptype(&self) -> super::PiType {
-        super::PiType::C
-    }
 }
 
 #[cfg(test)]

@@ -40,18 +40,6 @@ impl Pi for Pi5 {
         }
         buf
     }
-
-    fn code(&self) -> u8 {
-        5
-    }
-
-    fn len(&self) -> usize {
-        16
-    }
-
-    fn ptype(&self) -> super::PiType {
-        super::PiType::C
-    }
 }
 
 #[cfg(test)]

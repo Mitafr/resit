@@ -21,18 +21,6 @@ impl Pi for Pi42 {
     fn as_bytes(&self) -> Vec<u8> {
         self.0.to_vec()
     }
-
-    fn code(&self) -> u8 {
-        42
-    }
-
-    fn len(&self) -> usize {
-        4
-    }
-
-    fn ptype(&self) -> super::PiType {
-        super::PiType::N
-    }
 }
 
 #[cfg(test)]

@@ -23,18 +23,6 @@ impl Pi for Pi32 {
         buf.extend_from_slice(&self.0.to_le_bytes());
         buf
     }
-
-    fn code(&self) -> u8 {
-        32
-    }
-
-    fn len(&self) -> usize {
-        2
-    }
-
-    fn ptype(&self) -> super::PiType {
-        super::PiType::N
-    }
 }
 
 #[cfg(test)]
