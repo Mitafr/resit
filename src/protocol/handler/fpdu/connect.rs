@@ -28,6 +28,8 @@ impl<'r> FrameHandler<'r, ServerState> for FConnectHandler {
         if *state == ServerState::Connected {
             log::warn!("Received FConnect frame while already connected.");
         }
+        let (_, payload) = Self::extract_payload(&frame).unwrap();
+        log::info!("{payload:?}");
         conn.send(Frame {
             header: FrameHeader {
                 kind: FrameType::FAConnect,
@@ -40,8 +42,6 @@ impl<'r> FrameHandler<'r, ServerState> for FConnectHandler {
             len: 0,
         })
         .await?;
-        let (_, payload) = Self::extract_payload(&frame).unwrap();
-        log::info!("{payload:?}");
         *state = ServerState::Connected;
         Ok(())
     }

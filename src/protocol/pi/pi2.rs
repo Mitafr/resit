@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Pi2 {
@@ -21,7 +21,9 @@ impl Pi for Pi2 {
             },
         ))
     }
+}
 
+impl PiAsBytes for Pi2 {
     fn as_bytes(&self) -> Vec<u8> {
         let mut buf = Vec::new();
         buf.push(self.error_type);

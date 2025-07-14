@@ -7,6 +7,8 @@ pub(crate) use super::pi15::Pi15;
 pub(crate) use super::pi16::Pi16;
 pub(crate) use super::pi17::Pi17;
 pub(crate) use super::pi2::Pi2;
+pub(crate) use super::pi22::Pi22;
+pub(crate) use super::pi23::Pi23;
 pub(crate) use super::pi25::Pi25;
 pub(crate) use super::pi3::Pi3;
 pub(crate) use super::pi31::Pi31;
@@ -29,4 +31,4 @@ pub(crate) use super::pi71::Pi71;
 pub(crate) use super::pi91::Pi91;
 pub(crate) use super::pi99::Pi99;
 
-pub(crate) use super::Pi;
+pub(crate) use super::{Pi, PiAsBytes};

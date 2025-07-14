@@ -1,12 +1,8 @@
-use std::borrow::Cow;
-
 use crate::connection::PesitFramedStream;
 use crate::protocol::frame::types::FrameType;
 use crate::protocol::frame::FrameHeader;
 use crate::protocol::handler::{convert_frame_owned, prelude::*, FrameHandler};
-use crate::protocol::pi::pi12::Pi12;
-use crate::protocol::pi::pi3::Pi3;
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::prelude::*;
 use crate::{connection::connect, error::PesitError, protocol::frame::Frame, state::ClientState};
 use futures::SinkExt;
 use tokio_stream::StreamExt;
@@ -40,7 +36,22 @@ impl PesitClient {
                     .length(0)
                     .build(),
             )
-            .payload(Pi3::default().as_bytes())
+            .payload(
+                vec![
+                    Pi1(false).as_bytes(),
+                    Pi3::default().as_bytes(),
+                    Pi4::default().as_bytes(),
+                    Pi5::default().as_bytes(),
+                    Pi6::default().as_bytes(),
+                    Pi7::default().as_bytes(),
+                    Pi22::default().as_bytes(),
+                    Pi23::default().as_bytes(),
+                    Pi99::default().as_bytes(),
+                ]
+                .into_iter()
+                .flatten()
+                .collect(),
+            )
             .len(0)
             .build();
         self.send_frame(frame).await?;

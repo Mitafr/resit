@@ -9,6 +9,8 @@ pub(crate) mod pi15;
 pub(crate) mod pi16;
 pub(crate) mod pi17;
 pub(crate) mod pi2;
+pub(crate) mod pi22;
+pub(crate) mod pi23;
 pub(crate) mod pi25;
 pub(crate) mod pi3;
 pub(crate) mod pi31;
@@ -52,12 +54,14 @@ pub(crate) enum PiType {
 }
 
 /// This trait defines the parsing behavior for all protocol identifier structures.
-pub trait Pi: Default + PiDefinition {
+pub trait Pi: Default + PiDefinition + PiAsBytes {
     /// Parses the given data into a protocol identifier structure.
     fn parse(data: &[u8]) -> IResult<&[u8], Self>
     where
         Self: Sized;
+}
 
+pub trait PiAsBytes {
     /// Converts the protocol identifier structure into a byte vector.
     fn as_bytes(&self) -> Vec<u8>;
 }
@@ -112,6 +116,8 @@ declare_pi_definition!(Pi14, 14, 1, PiType::M, "Requested Attributes");
 declare_pi_definition!(Pi15, 15, 1, PiType::S, "Recovered Transfer");
 declare_pi_definition!(Pi16, 16, 1, PiType::S, "Data Coding");
 declare_pi_definition!(Pi17, 17, 1, PiType::S, "Transfer Priority");
+declare_pi_definition!(Pi22, 22, 1, PiType::S, "Access Type");
+declare_pi_definition!(Pi23, 23, 1, PiType::S, "Resync");
 declare_pi_definition!(Pi25, 25, 2, PiType::N, "Maximum Side Of A Data Element");
 declare_pi_definition!(Pi31, 31, 1, PiType::M, "Article Format");
 declare_pi_definition!(Pi32, 32, 2, PiType::N, "Article Length");
@@ -137,6 +143,6 @@ mod tests_definition {
         assert_eq!(Pi1::code(), 1);
         assert_eq!(Pi1::len(), 1);
         assert_eq!(Pi1::ptype(), PiType::S);
-        assert_eq!(Pi1::alias(), "CRC Usage")
+        assert_eq!(Pi1::alias(), "CRC Usage");
     }
 }

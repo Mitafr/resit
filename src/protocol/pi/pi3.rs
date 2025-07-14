@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 /// Pi3 is a structure that holds the caller ID
 /// This protocol identifier is optional except for the FPDU.CONNECT
@@ -12,12 +12,13 @@ impl Pi for Pi3 {
         let (data, bytes) = nom::bytes::complete::take(24usize)(data)?;
         Ok((data, Pi3(bytes.try_into().unwrap())))
     }
+}
 
+impl PiAsBytes for Pi3 {
     fn as_bytes(&self) -> Vec<u8> {
         self.0.to_vec()
     }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;

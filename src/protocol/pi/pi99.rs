@@ -1,4 +1,4 @@
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Pi99(pub [u8; 254]);
@@ -17,7 +17,9 @@ impl Pi for Pi99 {
         let (data, inner) = nom::bytes::complete::take(254usize)(data)?;
         Ok((data, Pi99(inner.try_into().unwrap_or([0; 254]))))
     }
+}
 
+impl PiAsBytes for Pi99 {
     fn as_bytes(&self) -> Vec<u8> {
         self.0.to_vec()
     }

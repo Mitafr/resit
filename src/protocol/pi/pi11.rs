@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub(crate) enum ExchangeType {
@@ -37,7 +37,9 @@ impl Pi for Pi11 {
         bytes.copy_from_slice(&data[..2]);
         Ok((&data[2..], Pi11(bytes)))
     }
+}
 
+impl PiAsBytes for Pi11 {
     fn as_bytes(&self) -> Vec<u8> {
         self.0.to_vec()
     }
@@ -55,7 +57,7 @@ mod tests {
         assert_eq!(rem.len(), 0);
         assert_eq!(pi.0, data);
         assert_eq!(pi.exchange_type(), ExchangeType::Send);
-        assert_eq!(pi.as_bytes(), data)
+        assert_eq!(pi.as_bytes(), data);
     }
 
     #[test]

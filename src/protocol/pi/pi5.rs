@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Pi5 {
@@ -29,7 +29,9 @@ impl Pi for Pi5 {
             },
         ))
     }
+}
 
+impl PiAsBytes for Pi5 {
     fn as_bytes(&self) -> Vec<u8> {
         let mut buf = Vec::with_capacity(16);
         buf.extend_from_slice(&self.password);

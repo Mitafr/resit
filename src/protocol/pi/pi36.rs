@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Pi36(pub [u8; 64]);
@@ -18,7 +18,9 @@ impl Pi for Pi36 {
     {
         unreachable!("Not Authorized")
     }
+}
 
+impl PiAsBytes for Pi36 {
     fn as_bytes(&self) -> Vec<u8> {
         unreachable!("Not Authorized")
     }

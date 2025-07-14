@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq)]
 pub enum TransferPriority {
@@ -35,11 +35,11 @@ impl Pi for Pi17 {
             Ok((&data[1..], Self(priority)))
         }
     }
+}
 
+impl PiAsBytes for Pi17 {
     fn as_bytes(&self) -> Vec<u8> {
-        let mut buf = Vec::with_capacity(1);
-        buf.push(self.0 as u8);
-        buf
+        vec![self.0 as u8]
     }
 }
 

@@ -38,7 +38,7 @@ impl<'r> FrameHandler<'r, ServerState> for FCreateHandler {
         state: &mut ServerState,
     ) -> Result<(), PesitError> {
         log::debug!("Handling FCreate frame");
-        let (raw, payload) = Self::extract_payload(&frame).unwrap();
+        let (_raw, payload) = Self::extract_payload(&frame).unwrap();
         log::info!(
             "FCreate payload: pi3={:?}, pi4={:?}, pi11={:?}, pi12={:?}, pi13={:?}, pi15={:?}, pi16={:?}, pi17={:?}, pi25={:?}, pi31={:?}, pi32={:?}, pi33={:?}, pi36={:?}, pi37={:?}, pi41={:?}, pi42={:?}, pi51={:?}, pi52={:?}, pi61={:?}, pi62={:?}, pi99={:?}",
             payload.0,

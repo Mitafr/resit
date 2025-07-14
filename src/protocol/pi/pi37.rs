@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Pi37(pub [u8; 80]);
@@ -19,7 +19,9 @@ impl Pi for Pi37 {
         let (data, signature) = nom::bytes::complete::take(80u8)(data)?;
         Ok((data, Pi37(signature.try_into().unwrap())))
     }
+}
 
+impl PiAsBytes for Pi37 {
     fn as_bytes(&self) -> Vec<u8> {
         self.0.to_vec()
     }

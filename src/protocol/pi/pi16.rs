@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq)]
 pub enum DataCoding {
@@ -35,11 +35,11 @@ impl Pi for Pi16 {
             Ok((&data[1..], Self(coding)))
         }
     }
+}
 
+impl PiAsBytes for Pi16 {
     fn as_bytes(&self) -> Vec<u8> {
-        let mut buf = Vec::with_capacity(1);
-        buf.push(self.0 as u8);
-        buf
+        vec![self.0 as u8]
     }
 }
 

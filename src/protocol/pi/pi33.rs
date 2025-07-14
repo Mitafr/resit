@@ -1,7 +1,7 @@
 use log::warn;
 use nom::IResult;
 
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub(crate) enum FileAttributes {
@@ -31,11 +31,11 @@ impl Pi for Pi33 {
         };
         Ok((data, Pi33(version)))
     }
+}
 
+impl PiAsBytes for Pi33 {
     fn as_bytes(&self) -> Vec<u8> {
-        let mut buf = Vec::with_capacity(1);
-        buf.push(self.0 as u8);
-        buf
+        vec![self.0 as u8]
     }
 }
 

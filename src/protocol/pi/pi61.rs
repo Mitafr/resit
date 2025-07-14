@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Pi61(pub [u8; 24]);
@@ -21,7 +21,9 @@ impl Pi for Pi61 {
             Ok((&data[24..], Self(value)))
         }
     }
+}
 
+impl PiAsBytes for Pi61 {
     fn as_bytes(&self) -> Vec<u8> {
         self.0.to_vec()
     }

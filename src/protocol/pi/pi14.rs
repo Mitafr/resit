@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub enum RequestedAttr {
@@ -39,11 +39,11 @@ impl Pi for Pi14 {
         };
         Ok((rest, Pi14(attr)))
     }
+}
 
+impl PiAsBytes for Pi14 {
     fn as_bytes(&self) -> Vec<u8> {
-        let mut buf = Vec::with_capacity(1);
-        buf.push(self.0 as u8);
-        buf
+        vec![self.0 as u8]
     }
 }
 

@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum AuthAlgo {
@@ -49,10 +49,12 @@ impl Pi for Pi71 {
         };
         Ok((data, pi))
     }
+}
 
+impl PiAsBytes for Pi71 {
     fn as_bytes(&self) -> Vec<u8> {
         let mut buf = Vec::with_capacity(3);
-        buf.push(self.auth as u8);
+        buf.push(u8::from(self.auth));
         if self.auth {
             buf.push(self.auth_type.unwrap() as u8);
             buf.push(self.auth_procedure.unwrap() as u8);
@@ -68,7 +70,7 @@ mod tests {
     #[test]
     fn test_parse_no_auth() {
         let pi = Pi71::parse(&[0, 0, 0]).unwrap().1;
-        assert_eq!(pi.auth, false);
+        assert!(!pi.auth);
         assert_eq!(pi.auth_type, None);
         assert_eq!(pi.auth_procedure, None);
         assert_eq!(pi.as_bytes(), [0]);
@@ -77,12 +79,12 @@ mod tests {
     #[test]
     fn test_parse_pi71() {
         let pi = Pi71::parse(&[1, 0, 0]).unwrap().1;
-        assert_eq!(pi.auth, true);
+        assert!(pi.auth);
         assert_eq!(pi.auth_type, Some(AuthAlgo::Rsa));
         assert_eq!(pi.auth_procedure, Some(AuthProcedure::CertExchange));
         assert_eq!(pi.as_bytes(), [1, 0, 0]);
         let pi = Pi71::parse(&[1, 1, 0]).unwrap().1;
-        assert_eq!(pi.auth, true);
+        assert!(pi.auth);
         assert_eq!(pi.auth_type, Some(AuthAlgo::Des));
         assert_eq!(pi.auth_procedure, Some(AuthProcedure::CertExchange));
     }

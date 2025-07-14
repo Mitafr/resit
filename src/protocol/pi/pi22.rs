@@ -3,26 +3,28 @@ use nom::IResult;
 use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq)]
-pub enum Recovered {
+pub enum AccessType {
     #[default]
-    New = 0,
-    Recovered = 1,
+    Write = 0,
+    Read = 1,
+    Mix = 2,
 }
 
 #[derive(Debug, Clone, Default, PartialEq)]
-pub struct Pi15(Recovered);
+pub struct Pi22(AccessType);
 
-impl Pi for Pi15 {
+impl Pi for Pi22 {
     fn parse(data: &[u8]) -> IResult<&[u8], Self>
     where
         Self: Sized,
     {
         if data.is_empty() {
-            Ok((data, Self(Recovered::default())))
+            Ok((data, Self(AccessType::default())))
         } else {
-            let recovered = match data[0] {
-                0 => Recovered::New,
-                1 => Recovered::Recovered,
+            let access_type = match data[0] {
+                0 => AccessType::Write,
+                1 => AccessType::Read,
+                2 => AccessType::Mix,
                 _ => {
                     return Err(nom::Err::Error(nom::error::Error::new(
                         data,
@@ -30,26 +32,13 @@ impl Pi for Pi15 {
                     )))
                 }
             };
-            Ok((&data[1..], Self(recovered)))
+            Ok((&data[1..], Self(access_type)))
         }
     }
 }
 
-impl PiAsBytes for Pi15 {
+impl PiAsBytes for Pi22 {
     fn as_bytes(&self) -> Vec<u8> {
         vec![self.0 as u8]
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_parse() {
-        let data = vec![0, 0, 0];
-        let (rem, pi) = Pi15::parse(&data).unwrap();
-        assert_eq!(rem, &data[1..]);
-        assert_eq!(pi.0, Recovered::New);
     }
 }

@@ -1,6 +1,6 @@
 use nom::{bytes::complete::take, IResult};
 
-use crate::protocol::pi::Pi;
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Pi1(pub bool);
@@ -10,9 +10,11 @@ impl Pi for Pi1 {
         let (data, bytes) = take(1usize)(data)?;
         Ok((data, Pi1(bytes[0] == 1)))
     }
+}
 
+impl PiAsBytes for Pi1 {
     fn as_bytes(&self) -> Vec<u8> {
-        vec![if self.0 { 1 } else { 0 }]
+        vec![u8::from(self.0)]
     }
 }
 

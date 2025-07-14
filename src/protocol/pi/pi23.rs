@@ -3,26 +3,26 @@ use nom::IResult;
 use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq)]
-pub enum Recovered {
+pub enum Resync {
     #[default]
-    New = 0,
-    Recovered = 1,
+    Unauthorized = 0,
+    Authorized = 1,
 }
 
 #[derive(Debug, Clone, Default, PartialEq)]
-pub struct Pi15(Recovered);
+pub struct Pi23(Resync);
 
-impl Pi for Pi15 {
+impl Pi for Pi23 {
     fn parse(data: &[u8]) -> IResult<&[u8], Self>
     where
         Self: Sized,
     {
         if data.is_empty() {
-            Ok((data, Self(Recovered::default())))
+            Ok((data, Self(Resync::default())))
         } else {
-            let recovered = match data[0] {
-                0 => Recovered::New,
-                1 => Recovered::Recovered,
+            let resync = match data[0] {
+                0 => Resync::Unauthorized,
+                1 => Resync::Authorized,
                 _ => {
                     return Err(nom::Err::Error(nom::error::Error::new(
                         data,
@@ -30,26 +30,13 @@ impl Pi for Pi15 {
                     )))
                 }
             };
-            Ok((&data[1..], Self(recovered)))
+            Ok((&data[1..], Self(resync)))
         }
     }
 }
 
-impl PiAsBytes for Pi15 {
+impl PiAsBytes for Pi23 {
     fn as_bytes(&self) -> Vec<u8> {
         vec![self.0 as u8]
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_parse() {
-        let data = vec![0, 0, 0];
-        let (rem, pi) = Pi15::parse(&data).unwrap();
-        assert_eq!(rem, &data[1..]);
-        assert_eq!(pi.0, Recovered::New);
     }
 }
