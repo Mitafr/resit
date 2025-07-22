@@ -1,3 +1,5 @@
+use nom::AsBytes;
+
 use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -6,6 +8,17 @@ pub struct Pi99(pub [u8; 254]);
 impl Default for Pi99 {
     fn default() -> Self {
         Pi99([0; 254])
+    }
+}
+
+impl Pi99 {
+    pub fn from_str(s: &str) -> Self {
+        let bytes = s.as_bytes();
+        let mut array = [0u8; 254];
+        if bytes.len() < 254 {
+            array[..bytes.len()].copy_from_slice(bytes);
+        }
+        Self(array)
     }
 }
 
@@ -28,6 +41,14 @@ impl PiAsBytes for Pi99 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn parse_from_str() {
+        let s = "test";
+        let pi99 = Pi99::from_str(s);
+        let bytes = s.as_bytes();
+        assert_eq!(pi99.0, [bytes, &[0u8; 250]].concat().as_slice());
+    }
 
     #[test]
     fn test_parse_pi99() {

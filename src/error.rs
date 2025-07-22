@@ -5,7 +5,7 @@ pub enum PesitError {
     /// An error occurred while performing an IO operation.
     Io(#[from] std::io::Error),
 
-    #[error("Parsing error : {0}")]
+    #[error("Parsing error: {0}")]
     /// An error occurred while parsing a frame.
     Parse(String),
 

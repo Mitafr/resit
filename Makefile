@@ -24,11 +24,10 @@ clean:
 	$(CARGO) clean
 
 coverage:
-	$(CARGO) llvm-cov nextest --lcov --output-path ./target/lcov.info
+	$(CARGO) llvm-cov nextest --lcov --output-path ./target/lcov.info 
 
-coverage-report: coverage
-	$(CARGO) llvm-cov nextest
-
+coverage-report: 
+	$(CARGO) llvm-cov nextest --color always
 
 example-%:
 	RUST_LOG=${RUST_LOG} $(CARGO) run --example $*

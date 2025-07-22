@@ -116,11 +116,36 @@ impl PesitClient {
                     .build(),
             )
             .payload(
-                Pi12::builder()
-                    .identifier(crate::protocol::pi::pi12::IdentifierType::Standard)
-                    .file_reference(*b"A24070124071")
-                    .build()
-                    .as_bytes(),
+                vec![
+                    Pi3::default().as_bytes(),
+                    Pi4::default().as_bytes(),
+                    Pi11::default().as_bytes(),
+                    Pi12::builder()
+                        .identifier(crate::protocol::pi::pi12::IdentifierType::Standard)
+                        .file_reference(*b"A24070124071")
+                        .build()
+                        .as_bytes(),
+                    Pi13::default().as_bytes(),
+                    Pi15::default().as_bytes(),
+                    Pi16::default().as_bytes(),
+                    Pi17::default().as_bytes(),
+                    Pi25::default().as_bytes(),
+                    Pi31::default().as_bytes(),
+                    Pi32::default().as_bytes(),
+                    Pi33::default().as_bytes(),
+                    Pi37::default().as_bytes(),
+                    Pi38::default().as_bytes(),
+                    Pi41::default().as_bytes(),
+                    Pi42::default().as_bytes(),
+                    Pi51::default().as_bytes(),
+                    Pi52::default().as_bytes(),
+                    Pi61::default().as_bytes(),
+                    Pi62::default().as_bytes(),
+                    Pi99::from_str("test123456").as_bytes(),
+                ]
+                .into_iter()
+                .flatten()
+                .collect(),
             )
             .len(0)
             .build();

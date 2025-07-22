@@ -56,6 +56,10 @@ impl PesitServer {
     /// # Errors
     /// This function will return an error if the server fails to accept a connection.
     /// Or the frame processing fails.
+    ///
+    /// # Panics
+    /// This function panics if the server cannot handle a frame
+    /// TODO: fix this panic
     pub async fn run(&mut self) -> Result<(), PesitError> {
         loop {
             let sock = match self.accept_conn().await {
@@ -70,7 +74,8 @@ impl PesitServer {
             tokio::spawn(async move {
                 let mut handler = PesitServerHandler::new(resp_command_frame);
                 if let Err(e) = handler.handle().await {
-                    log::error!("Failed to handle command: {e}");
+                    log::error!("Failed to handle command: {e:?}");
+                    panic!("{e:?}")
                 }
             });
         }

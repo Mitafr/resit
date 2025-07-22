@@ -14,8 +14,8 @@ impl<'r> FrameHandler<'r, ServerState> for FConnectHandler {
         Option<Pi5>,
         Pi6,
         Pi7,
-        //Pi22,
-        //Pi23,
+        Pi22,
+        Pi23,
         Option<Pi99>,
     );
 
@@ -56,9 +56,12 @@ impl<'r> FrameHandler<'r, ServerState> for FConnectHandler {
         let (raw_payload, pi5) = parse_pi::<Pi5>(raw_payload)?;
         let (raw_payload, pi6) = parse_pi::<Pi6>(raw_payload)?;
         let (_raw_payload, pi7) = parse_pi::<Pi7>(raw_payload)?;
+        let (_raw_payload, pi22) = parse_pi::<Pi22>(raw_payload)?;
+        let (_raw_payload, pi23) = parse_pi::<Pi23>(raw_payload)?;
+        let (_raw_payload, pi99) = parse_pi::<Pi99>(raw_payload)?;
         Ok((
             Cow::Borrowed(raw_payload),
-            (pi1, pi3, pi4, Some(pi5), pi6, pi7, None),
+            (pi1, pi3, pi4, Some(pi5), pi6, pi7, pi22, pi23, Some(pi99)),
         ))
     }
 }
