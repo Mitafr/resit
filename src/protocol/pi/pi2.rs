@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::{Pi, PiAsBytes};
+use crate::protocol::pi::{Pi, PiAsBytes, PiDefinition};
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Pi2 {
@@ -25,7 +25,7 @@ impl Pi for Pi2 {
 
 impl PiAsBytes for Pi2 {
     fn as_bytes(&self) -> Vec<u8> {
-        let mut buf = Vec::new();
+        let mut buf = vec![Self::code()];
         buf.push(self.error_type);
         buf.extend_from_slice(&self.reason_code.to_be_bytes());
         buf
@@ -50,6 +50,17 @@ mod tests {
             }
         );
         assert!(remain_.is_empty());
-        assert_eq!(pi2.as_bytes(), vec![0u8, 0xF0, 0xFF]);
+        assert_eq!(pi2.as_bytes(), vec![2, 0u8, 0xF0, 0xFF]);
+    }
+
+    #[test]
+    fn test_as_bytes() {
+        let pi2 = Pi2 {
+            error_type: 0,
+            reason_code: 0,
+        };
+        let mut excepted = vec![2];
+        excepted.extend([0u8; 3]);
+        assert_eq!(excepted, pi2.as_bytes());
     }
 }

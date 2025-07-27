@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::{Pi, PiAsBytes};
+use crate::protocol::pi::{Pi, PiAsBytes, PiDefinition};
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Pi5 {
@@ -33,7 +33,8 @@ impl Pi for Pi5 {
 
 impl PiAsBytes for Pi5 {
     fn as_bytes(&self) -> Vec<u8> {
-        let mut buf = Vec::with_capacity(16);
+        let mut buf = Vec::with_capacity(17);
+        buf.push(Self::code());
         buf.extend_from_slice(&self.password);
         if let Some(new_password) = &self.new_password {
             buf.extend_from_slice(new_password);
@@ -69,5 +70,15 @@ mod tests {
             Some([b'n', b'e', b'w', b'1', b'2', b'3', b'4', b'5'])
         );
         assert!(remain.is_empty());
+    }
+
+    #[test]
+    fn test_as_bytes() {
+        let data = "test1234".as_bytes();
+        let (_, pi5) = Pi5::parse(data).unwrap();
+        let mut excepted = vec![5];
+        excepted.extend(data);
+        excepted.extend([0u8; 8]);
+        assert_eq!(excepted, pi5.as_bytes());
     }
 }
