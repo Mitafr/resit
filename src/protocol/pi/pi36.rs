@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::{Pi, PiAsBytes, PiDefinition};
+use crate::protocol::pi::{Pi, PiAsBytes};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Pi36(pub [u8; 64]);

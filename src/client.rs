@@ -4,10 +4,8 @@ use crate::protocol::frame::FrameHeader;
 use crate::protocol::handler::{convert_frame_owned, prelude::*, FrameHandler};
 use crate::protocol::pgi::file_desc::{FileDescriptor, FileDescriptorPis};
 use crate::protocol::pgi::hist_attr::HistoricAttribute;
-use crate::protocol::pgi::log_attr::{LogicalAttribute, LogicalAttributePis};
-use crate::protocol::pgi::phys_attr::{
-    PhysicalAttribute, PhysicalAttributePis, PhysicalAttributePisBuilder,
-};
+use crate::protocol::pgi::log_attr::LogicalAttribute;
+use crate::protocol::pgi::phys_attr::PhysicalAttribute;
 use crate::protocol::pi::prelude::*;
 use crate::{connection::connect, error::PesitError, protocol::frame::Frame, state::ClientState};
 use futures::SinkExt;

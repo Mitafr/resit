@@ -72,7 +72,7 @@ impl<'r> FrameHandler<'r, ServerState> for FCreateHandler {
     ) -> Result<(Self::RawPayload, Self::PiPayload), PesitError> {
         let raw_payload = &frame.payload;
         log::debug!("{raw_payload:?}");
-        let (raw_payload, pgi9) = FileDescriptor::parse(&raw_payload).unwrap();
+        let (raw_payload, pgi9) = FileDescriptor::parse(raw_payload).unwrap();
         let (raw_payload, pi13) = parse_pi::<Pi13>(raw_payload).unwrap();
         let (raw_payload, pi15) = parse_pi::<Pi15>(raw_payload).unwrap();
         let (raw_payload, pi16) = parse_pi::<Pi16>(raw_payload).unwrap();

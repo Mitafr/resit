@@ -24,10 +24,6 @@ impl From<Diag> for Pi2 {
                 error_type: 3,
                 reason_code: 300,
             },
-            _ => Pi2 {
-                error_type: 0,
-                reason_code: 0,
-            },
         }
     }
 }
