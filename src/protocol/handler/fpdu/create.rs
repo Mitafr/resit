@@ -1,5 +1,10 @@
 use std::borrow::Cow;
 
+use crate::protocol::pgi::{
+    file_desc::FileDescriptor, hist_attr::HistoricAttribute, log_attr::LogicalAttribute,
+    phys_attr::PhysicalAttribute, Pgi,
+};
+
 use super::prelude::*;
 
 pub(crate) struct FCreateHandler {}
@@ -7,24 +12,15 @@ pub(crate) struct FAckCreateHandler {}
 
 #[derive(Debug)]
 pub struct FCreatePayload {
-    pi3: Option<Pi3>,
-    pi4: Option<Pi4>,
-    pi11: Pi11,
-    pi12: Pi12,
+    pgi9: FileDescriptor,
     pi13: Pi13,
     pi15: Pi15,
     pi16: Pi16,
     pi17: Pi17,
     pi25: Pi25,
-    pi31: Pi31,
-    pi32: Pi32,
-    pi33: Pi33,
-    pi37: Pi37,
-    pi38: Pi38,
-    pi41: Pi41,
-    pi42: Pi42,
-    pi51: Pi51,
-    pi52: Pi52,
+    pgi30: LogicalAttribute,
+    pgi40: PhysicalAttribute,
+    pgi50: HistoricAttribute,
     pi61: Pi61,
     pi62: Pi62,
     pi99: Pi99,
@@ -44,12 +40,7 @@ impl<'r> FrameHandler<'r, ServerState> for FCreateHandler {
         let (_raw, payload) = Self::extract_payload(&frame).unwrap();
         log::info!("{payload:?}");
         *state = ServerState::FileSelection;
-        log::debug!("Asked to create this Pi12 : {:?}", payload.pi12);
-        let pi2 = Pi2 {
-            error_type: 0,
-            reason_code: 0,
-        }
-        .as_bytes();
+        log::debug!("Asked to create this Pi12 : {}", payload.pgi9.pis.pi12);
         let ack_frame = Frame::builder()
             .header(
                 FrameHeader::builder()
@@ -60,7 +51,16 @@ impl<'r> FrameHandler<'r, ServerState> for FCreateHandler {
                     .length(0)
                     .build(),
             )
-            .payload(pi2)
+            .payload(
+                vec![Pi2 {
+                    error_type: 0,
+                    reason_code: 0,
+                }
+                .as_bytes()]
+                .into_iter()
+                .flatten()
+                .collect(),
+            )
             .len(0)
             .build();
         conn.send(ack_frame).await?;
@@ -71,50 +71,31 @@ impl<'r> FrameHandler<'r, ServerState> for FCreateHandler {
         frame: &'r Frame<Self::RawPayload>,
     ) -> Result<(Self::RawPayload, Self::PiPayload), PesitError> {
         let raw_payload = &frame.payload;
-        log::debug!("{raw_payload:#?}");
-        let (raw_payload, pi3) = parse_pi::<Pi3>(raw_payload).unwrap();
-        log::debug!("{raw_payload:#?}");
-        let (raw_payload, pi4) = parse_pi::<Pi4>(raw_payload).unwrap();
-        let (raw_payload, pi11) = parse_pi::<Pi11>(raw_payload).unwrap();
-        let (raw_payload, pi12) = parse_pi::<Pi12>(raw_payload).unwrap();
+        log::debug!("{raw_payload:?}");
+        let (raw_payload, pgi9) = FileDescriptor::parse(&raw_payload).unwrap();
         let (raw_payload, pi13) = parse_pi::<Pi13>(raw_payload).unwrap();
         let (raw_payload, pi15) = parse_pi::<Pi15>(raw_payload).unwrap();
         let (raw_payload, pi16) = parse_pi::<Pi16>(raw_payload).unwrap();
         let (raw_payload, pi17) = parse_pi::<Pi17>(raw_payload).unwrap();
         let (raw_payload, pi25) = parse_pi::<Pi25>(raw_payload).unwrap();
-        let (raw_payload, pi31) = parse_pi::<Pi31>(raw_payload).unwrap();
-        let (raw_payload, pi32) = parse_pi::<Pi32>(raw_payload).unwrap();
-        let (raw_payload, pi33) = parse_pi::<Pi33>(raw_payload).unwrap();
-        let (raw_payload, pi37) = parse_pi::<Pi37>(raw_payload).unwrap();
-        let (raw_payload, pi38) = parse_pi::<Pi38>(raw_payload).unwrap();
-        let (raw_payload, pi41) = parse_pi::<Pi41>(raw_payload).unwrap();
-        let (raw_payload, pi42) = parse_pi::<Pi42>(raw_payload).unwrap();
-        let (raw_payload, pi51) = parse_pi::<Pi51>(raw_payload).unwrap();
-        let (raw_payload, pi52) = parse_pi::<Pi52>(raw_payload).unwrap();
+        let (raw_payload, pgi30) = LogicalAttribute::parse(raw_payload).unwrap();
+        let (raw_payload, pgi40) = PhysicalAttribute::parse(raw_payload).unwrap();
+        let (raw_payload, pgi50) = HistoricAttribute::parse(raw_payload).unwrap();
         let (raw_payload, pi61) = parse_pi::<Pi61>(raw_payload).unwrap();
         let (raw_payload, pi62) = parse_pi::<Pi62>(raw_payload).unwrap();
         let (_raw_payload, pi99) = parse_pi::<Pi99>(raw_payload).unwrap();
         Ok((
             Cow::Borrowed(raw_payload),
             FCreatePayload {
-                pi3: Some(pi3),
-                pi4: Some(pi4),
-                pi11,
-                pi12,
+                pgi9,
                 pi13,
                 pi15,
                 pi16,
                 pi17,
                 pi25,
-                pi31,
-                pi32,
-                pi33,
-                pi37,
-                pi38,
-                pi41,
-                pi42,
-                pi51,
-                pi52,
+                pgi30,
+                pgi40,
+                pgi50,
                 pi61,
                 pi62,
                 pi99,
@@ -146,7 +127,7 @@ impl<'r> FrameHandler<'r, ClientState> for FAckCreateHandler {
         let (raw_payload, pi2) = parse_pi::<Pi2>(raw_payload)?;
         let (raw_payload, pi13) = parse_pi::<Pi13>(raw_payload)?;
         let (raw_payload, pi25) = parse_pi::<Pi25>(raw_payload)?;
-        let (_raw_payload, pi99) = parse_pi::<Pi99>(raw_payload)?;
+        let (raw_payload, pi99) = parse_pi::<Pi99>(raw_payload)?;
         Ok((
             Cow::Borrowed(raw_payload),
             (pi2, Some(pi13), pi25, Some(pi99)),

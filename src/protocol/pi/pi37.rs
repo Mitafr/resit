@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::{Pi, PiAsBytes};
+use crate::protocol::pi::{Pi, PiAsBytes, PiDefinition};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Pi37(pub [u8; 80]);
@@ -23,7 +23,9 @@ impl Pi for Pi37 {
 
 impl PiAsBytes for Pi37 {
     fn as_bytes(&self) -> Vec<u8> {
-        self.0.to_vec()
+        let mut buf = vec![Self::code()];
+        buf.extend(self.0);
+        buf
     }
 }
 

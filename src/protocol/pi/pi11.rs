@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::{Pi, PiAsBytes};
+use crate::protocol::pi::{Pi, PiAsBytes, PiDefinition};
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub(crate) enum ExchangeType {
@@ -41,7 +41,9 @@ impl Pi for Pi11 {
 
 impl PiAsBytes for Pi11 {
     fn as_bytes(&self) -> Vec<u8> {
-        self.0.to_vec()
+        let mut buf = vec![Self::code()];
+        buf.extend(self.0);
+        buf
     }
 }
 

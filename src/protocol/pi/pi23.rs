@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::{Pi, PiAsBytes};
+use crate::protocol::pi::{Pi, PiAsBytes, PiDefinition};
 
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq)]
 pub enum Resync {
@@ -37,6 +37,6 @@ impl Pi for Pi23 {
 
 impl PiAsBytes for Pi23 {
     fn as_bytes(&self) -> Vec<u8> {
-        vec![self.0 as u8]
+        vec![Self::code(), self.0 as u8]
     }
 }

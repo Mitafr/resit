@@ -1,6 +1,8 @@
+use std::fmt;
+
 use nom::IResult;
 
-use crate::protocol::pi::{Pi, PiAsBytes};
+use crate::protocol::pi::{Pi, PiAsBytes, PiDefinition};
 
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub(crate) enum VersionRequestType {
@@ -23,6 +25,24 @@ pub struct Pi12 {
     identifier: IdentifierType,
     reference_type: Option<VersionRequestType>,
     file_reference: [u8; 12],
+}
+
+impl Pi12 {
+    fn file_reference_str(&self) -> &str {
+        std::str::from_utf8(&self.file_reference).unwrap()
+    }
+}
+
+impl fmt::Display for Pi12 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{:?}, {:?}, {}",
+            self.identifier,
+            self.reference_type,
+            self.file_reference_str()
+        )
+    }
 }
 
 impl Pi12 {
@@ -87,7 +107,7 @@ impl Pi for Pi12 {
 
 impl PiAsBytes for Pi12 {
     fn as_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::new();
+        let mut bytes = vec![Self::code()];
         bytes.push(self.identifier as u8);
         match self.reference_type {
             Some(ref ref_type) => bytes.push(*ref_type as u8),

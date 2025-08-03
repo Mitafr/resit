@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::{Pi, PiAsBytes};
+use crate::protocol::pi::{Pi, PiAsBytes, PiDefinition};
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Pi25(u16);
@@ -13,7 +13,7 @@ impl Pi for Pi25 {
         if data.len() < 2 {
             Err(nom::Err::Incomplete(nom::Needed::new(2)))
         } else {
-            let value = u16::from_le_bytes([data[0], data[1]]);
+            let value = u16::from_be_bytes([data[0], data[1]]);
             Ok((&data[2..], Self(value)))
         }
     }
@@ -21,8 +21,10 @@ impl Pi for Pi25 {
 
 impl PiAsBytes for Pi25 {
     fn as_bytes(&self) -> Vec<u8> {
-        let mut buf = Vec::with_capacity(2);
-        buf.extend_from_slice(&self.0.to_le_bytes());
+        let mut buf = Vec::with_capacity(3);
+        buf.push(Self::code());
+        let data = self.0.to_be_bytes();
+        buf.extend(data);
         buf
     }
 }

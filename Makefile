@@ -12,7 +12,7 @@ build-release:
 	$(CARGO) build --release --color always
 
 test:
-	$(CARGO) test --color always --lib
+	$(CARGO) nextest run --color always
 
 fmt:
 	$(CARGO) fmt --all

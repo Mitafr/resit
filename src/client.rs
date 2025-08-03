@@ -2,6 +2,12 @@ use crate::connection::PesitFramedStream;
 use crate::protocol::frame::types::FrameType;
 use crate::protocol::frame::FrameHeader;
 use crate::protocol::handler::{convert_frame_owned, prelude::*, FrameHandler};
+use crate::protocol::pgi::file_desc::{FileDescriptor, FileDescriptorPis};
+use crate::protocol::pgi::hist_attr::HistoricAttribute;
+use crate::protocol::pgi::log_attr::{LogicalAttribute, LogicalAttributePis};
+use crate::protocol::pgi::phys_attr::{
+    PhysicalAttribute, PhysicalAttributePis, PhysicalAttributePisBuilder,
+};
 use crate::protocol::pi::prelude::*;
 use crate::{connection::connect, error::PesitError, protocol::frame::Frame, state::ClientState};
 use futures::SinkExt;
@@ -105,6 +111,21 @@ impl PesitClient {
     }
 
     pub(crate) async fn create(&mut self) -> Result<(), PesitError> {
+        let file_desc = FileDescriptor::builder()
+            .pis(
+                FileDescriptorPis::builder()
+                    .pi12(
+                        Pi12::builder()
+                            .identifier(crate::protocol::pi::pi12::IdentifierType::Standard)
+                            .file_reference(*b"A24070124071")
+                            .build(),
+                    )
+                    .build(),
+            )
+            .build();
+        let log_attr = LogicalAttribute::builder().build();
+        let phys_attr = PhysicalAttribute::builder().build();
+        let hist_attr = HistoricAttribute::builder().build();
         let frame = Frame::builder()
             .header(
                 FrameHeader::builder()
@@ -117,28 +138,15 @@ impl PesitClient {
             )
             .payload(
                 vec![
-                    Pi3::default().as_bytes(),
-                    Pi4::default().as_bytes(),
-                    Pi11::default().as_bytes(),
-                    Pi12::builder()
-                        .identifier(crate::protocol::pi::pi12::IdentifierType::Standard)
-                        .file_reference(*b"A24070124071")
-                        .build()
-                        .as_bytes(),
+                    file_desc.as_bytes(),
                     Pi13::default().as_bytes(),
                     Pi15::default().as_bytes(),
                     Pi16::default().as_bytes(),
                     Pi17::default().as_bytes(),
                     Pi25::default().as_bytes(),
-                    Pi31::default().as_bytes(),
-                    Pi32::default().as_bytes(),
-                    Pi33::default().as_bytes(),
-                    Pi37::default().as_bytes(),
-                    Pi38::default().as_bytes(),
-                    Pi41::default().as_bytes(),
-                    Pi42::default().as_bytes(),
-                    Pi51::default().as_bytes(),
-                    Pi52::default().as_bytes(),
+                    log_attr.as_bytes(),
+                    phys_attr.as_bytes(),
+                    hist_attr.as_bytes(),
                     Pi61::default().as_bytes(),
                     Pi62::default().as_bytes(),
                     Pi99::from_str("test123456").as_bytes(),

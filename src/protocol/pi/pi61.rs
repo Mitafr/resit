@@ -1,6 +1,8 @@
+use std::ops::Index;
+
 use nom::IResult;
 
-use crate::protocol::pi::{Pi, PiAsBytes};
+use crate::protocol::pi::{Pi, PiAsBytes, PiDefinition};
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Pi61(pub [u8; 24]);
@@ -13,19 +15,16 @@ impl Pi for Pi61 {
         if data.len() < 24 {
             Err(nom::Err::Incomplete(nom::Needed::new(24)))
         } else {
-            let value = [
-                data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8],
-                data[9], data[10], data[11], data[12], data[13], data[14], data[15], data[16],
-                data[17], data[18], data[19], data[20], data[21], data[22], data[23],
-            ];
-            Ok((&data[24..], Self(value)))
+            Ok((&data[24..], Self(data[..24].try_into().unwrap_or_default())))
         }
     }
 }
 
 impl PiAsBytes for Pi61 {
     fn as_bytes(&self) -> Vec<u8> {
-        self.0.to_vec()
+        let mut buf = vec![Self::code()];
+        buf.extend(self.0);
+        buf
     }
 }
 

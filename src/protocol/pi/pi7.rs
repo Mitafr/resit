@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::protocol::pi::{Pi, PiAsBytes};
+use crate::protocol::pi::{Pi, PiAsBytes, PiDefinition};
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Pi7 {
@@ -26,7 +26,7 @@ impl Pi for Pi7 {
             ))
         } else {
             Ok((
-                data,
+                &data[1..],
                 Pi7 {
                     sync_interval,
                     window: 0,
@@ -38,7 +38,8 @@ impl Pi for Pi7 {
 
 impl PiAsBytes for Pi7 {
     fn as_bytes(&self) -> Vec<u8> {
-        let mut buf = Vec::with_capacity(3);
+        let mut buf = Vec::with_capacity(4);
+        buf.push(Self::code());
         buf.extend_from_slice(&self.sync_interval.to_be_bytes());
         buf.push(self.window);
         buf

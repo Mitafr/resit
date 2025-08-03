@@ -2,10 +2,34 @@ use nom::IResult;
 
 use crate::protocol::pi::{Pi, PiAsBytes, PiDefinition};
 
+pub enum Diag {
+    Success,
+    LocalCommunicationSaturation,
+}
+
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Pi2 {
     pub error_type: u8,
     pub reason_code: u16,
+}
+
+impl From<Diag> for Pi2 {
+    fn from(value: Diag) -> Self {
+        match value {
+            Diag::Success => Pi2 {
+                error_type: 0,
+                reason_code: 0,
+            },
+            Diag::LocalCommunicationSaturation => Pi2 {
+                error_type: 3,
+                reason_code: 300,
+            },
+            _ => Pi2 {
+                error_type: 0,
+                reason_code: 0,
+            },
+        }
+    }
 }
 
 impl Pi for Pi2 {
